@@ -1,12 +1,36 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+import demoResults from "../data/demo_results.json";
 import { computeProviderStatistics, statisticalRisk } from "./statistics";
 import { buildGraph, graphSignals } from "./graph_engine";
 import { ringRisk, networkRisk, behaviorRisk, finalScore, level, reasons } from "./scoring";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function findDataDir(): string | null {
+  const candidates = [
+    path.join(process.cwd(), "data"),
+    path.join(__dirname, "../data"),
+    path.join(__dirname, "data"),
+    path.resolve("data"),
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(dir) && fs.existsSync(path.join(dir, "claims.json"))) {
+      return dir;
+    }
+  }
+  return null;
+}
+
 export function runPipeline() {
   try {
-    const dataDir = path.join(process.cwd(), "data");
+    const dataDir = findDataDir();
+    if (!dataDir) {
+      return demoResults;
+    }
+
     const claims = JSON.parse(fs.readFileSync(path.join(dataDir, "claims.json"), "utf-8"));
     const providers = JSON.parse(fs.readFileSync(path.join(dataDir, "providers.json"), "utf-8"));
     const referrals = JSON.parse(fs.readFileSync(path.join(dataDir, "referrals.json"), "utf-8"));
@@ -69,11 +93,7 @@ export function runPipeline() {
       rings,
     };
   } catch (err) {
-    console.error("Pipeline calculation error, falling back to demo_results.json:", err);
-    const demoPath = path.join(process.cwd(), "data", "demo_results.json");
-    if (fs.existsSync(demoPath)) {
-      return JSON.parse(fs.readFileSync(demoPath, "utf-8"));
-    }
-    throw err;
+    console.error("Pipeline calculation error, falling back to demoResults:", err);
+    return demoResults;
   }
 }

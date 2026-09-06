@@ -1,6 +1,11 @@
 import express from "express";
+import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { runPipeline } from "./src/fraud_engine";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
@@ -50,14 +55,31 @@ app.get("/api/fraud/rings", (req, res) => {
   res.json(RESULTS?.rings ?? []);
 });
 
-// Serve frontend static assets
-const frontendDir = path.join(process.cwd(), "frontend");
+// Resolve frontend static assets safely
+const candidateDirs = [
+  path.join(process.cwd(), "frontend"),
+  path.join(process.cwd(), "public"),
+  path.join(__dirname, "frontend"),
+  path.join(__dirname, "../frontend"),
+  path.join(__dirname, "public"),
+  path.join(__dirname, "../public"),
+];
+const frontendDir = candidateDirs.find((d) => fs.existsSync(d)) || path.join(process.cwd(), "frontend");
 app.use(express.static(frontendDir));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendDir, "index.html"));
+  const indexPath = path.join(frontendDir, "index.html");
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.json({ message: "Healthcare Fraud Intelligence API", status: "ok" });
+  }
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Healthcare Fraud Intelligence server running on http://0.0.0.0:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Healthcare Fraud Intelligence server running on http://0.0.0.0:${PORT}`);
+  });
+}
+
+export default app;
