@@ -1,0 +1,13907 @@
+// server.ts
+import express from "express";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// src/dataset.ts
+var rawClaims = [
+  {
+    "claim_id": "C00001",
+    "provider_id": "P001",
+    "patient_id": "PAT0759",
+    "procedure_code": "PROC-001",
+    "claim_amount": 58966.17,
+    "claim_date": "2026-08-20",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00002",
+    "provider_id": "P001",
+    "patient_id": "PAT0613",
+    "procedure_code": "PROC-003",
+    "claim_amount": 58115.46,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00003",
+    "provider_id": "P001",
+    "patient_id": "PAT0267",
+    "procedure_code": "PROC-001",
+    "claim_amount": 67141.3,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00004",
+    "provider_id": "P001",
+    "patient_id": "PAT0788",
+    "procedure_code": "PROC-001",
+    "claim_amount": 60671.98,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00005",
+    "provider_id": "P001",
+    "patient_id": "PAT0213",
+    "procedure_code": "PROC-001",
+    "claim_amount": 61391.46,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00006",
+    "provider_id": "P001",
+    "patient_id": "PAT0734",
+    "procedure_code": "PROC-002",
+    "claim_amount": 66643.55,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00007",
+    "provider_id": "P001",
+    "patient_id": "PAT0246",
+    "procedure_code": "PROC-004",
+    "claim_amount": 67302.63,
+    "claim_date": "2026-08-26",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00008",
+    "provider_id": "P001",
+    "patient_id": "PAT0729",
+    "procedure_code": "PROC-002",
+    "claim_amount": 63120.6,
+    "claim_date": "2026-07-12",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00009",
+    "provider_id": "P001",
+    "patient_id": "PAT0745",
+    "procedure_code": "PROC-001",
+    "claim_amount": 67822.07,
+    "claim_date": "2026-08-26",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00010",
+    "provider_id": "P001",
+    "patient_id": "PAT0286",
+    "procedure_code": "PROC-001",
+    "claim_amount": 67231.21,
+    "claim_date": "2026-08-23",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00011",
+    "provider_id": "P001",
+    "patient_id": "PAT0195",
+    "procedure_code": "PROC-001",
+    "claim_amount": 64950.43,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00012",
+    "provider_id": "P001",
+    "patient_id": "PAT0425",
+    "procedure_code": "PROC-004",
+    "claim_amount": 67968.05,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00013",
+    "provider_id": "P001",
+    "patient_id": "PAT0303",
+    "procedure_code": "PROC-003",
+    "claim_amount": 64045.4,
+    "claim_date": "2026-07-30",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00014",
+    "provider_id": "P001",
+    "patient_id": "PAT0101",
+    "procedure_code": "PROC-003",
+    "claim_amount": 61253.84,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00015",
+    "provider_id": "P001",
+    "patient_id": "PAT0140",
+    "procedure_code": "PROC-004",
+    "claim_amount": 58570.93,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00016",
+    "provider_id": "P001",
+    "patient_id": "PAT0500",
+    "procedure_code": "PROC-003",
+    "claim_amount": 67424.25,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00017",
+    "provider_id": "P001",
+    "patient_id": "PAT0444",
+    "procedure_code": "PROC-001",
+    "claim_amount": 58968.73,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00018",
+    "provider_id": "P001",
+    "patient_id": "PAT0184",
+    "procedure_code": "PROC-002",
+    "claim_amount": 59496.66,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00019",
+    "provider_id": "P001",
+    "patient_id": "PAT0586",
+    "procedure_code": "PROC-003",
+    "claim_amount": 63748.25,
+    "claim_date": "2026-07-05",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00020",
+    "provider_id": "P001",
+    "patient_id": "PAT0715",
+    "procedure_code": "PROC-001",
+    "claim_amount": 61975.3,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00021",
+    "provider_id": "P001",
+    "patient_id": "PAT0710",
+    "procedure_code": "PROC-005",
+    "claim_amount": 62045.72,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00022",
+    "provider_id": "P001",
+    "patient_id": "PAT0554",
+    "procedure_code": "PROC-002",
+    "claim_amount": 63108.42,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00023",
+    "provider_id": "P001",
+    "patient_id": "PAT0633",
+    "procedure_code": "PROC-003",
+    "claim_amount": 61075.16,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00024",
+    "provider_id": "P001",
+    "patient_id": "PAT0238",
+    "procedure_code": "PROC-004",
+    "claim_amount": 60832.37,
+    "claim_date": "2026-07-22",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00025",
+    "provider_id": "P001",
+    "patient_id": "PAT0578",
+    "procedure_code": "PROC-001",
+    "claim_amount": 59371.12,
+    "claim_date": "2026-07-27",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00026",
+    "provider_id": "P001",
+    "patient_id": "PAT0510",
+    "procedure_code": "PROC-003",
+    "claim_amount": 58175.78,
+    "claim_date": "2026-07-27",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00027",
+    "provider_id": "P001",
+    "patient_id": "PAT0559",
+    "procedure_code": "PROC-001",
+    "claim_amount": 64731.17,
+    "claim_date": "2026-07-05",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00028",
+    "provider_id": "P001",
+    "patient_id": "PAT0743",
+    "procedure_code": "PROC-004",
+    "claim_amount": 65832.89,
+    "claim_date": "2026-08-14",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00029",
+    "provider_id": "P001",
+    "patient_id": "PAT0612",
+    "procedure_code": "PROC-005",
+    "claim_amount": 61376.07,
+    "claim_date": "2026-07-10",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00030",
+    "provider_id": "P001",
+    "patient_id": "PAT0076",
+    "procedure_code": "PROC-001",
+    "claim_amount": 61300.66,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00031",
+    "provider_id": "P001",
+    "patient_id": "PAT0025",
+    "procedure_code": "PROC-003",
+    "claim_amount": 60757.06,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00032",
+    "provider_id": "P001",
+    "patient_id": "PAT0274",
+    "procedure_code": "PROC-004",
+    "claim_amount": 65878.1,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00033",
+    "provider_id": "P001",
+    "patient_id": "PAT0720",
+    "procedure_code": "PROC-004",
+    "claim_amount": 59599.94,
+    "claim_date": "2026-07-02",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00034",
+    "provider_id": "P001",
+    "patient_id": "PAT0707",
+    "procedure_code": "PROC-003",
+    "claim_amount": 66863.1,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00035",
+    "provider_id": "P001",
+    "patient_id": "PAT0656",
+    "procedure_code": "PROC-004",
+    "claim_amount": 61030.46,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00036",
+    "provider_id": "P001",
+    "patient_id": "PAT0500",
+    "procedure_code": "PROC-005",
+    "claim_amount": 66907.91,
+    "claim_date": "2026-08-01",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00037",
+    "provider_id": "P001",
+    "patient_id": "PAT0613",
+    "procedure_code": "PROC-004",
+    "claim_amount": 67014.24,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00038",
+    "provider_id": "P001",
+    "patient_id": "PAT0366",
+    "procedure_code": "PROC-004",
+    "claim_amount": 63004.89,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00039",
+    "provider_id": "P001",
+    "patient_id": "PAT0110",
+    "procedure_code": "PROC-002",
+    "claim_amount": 66503.01,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00040",
+    "provider_id": "P001",
+    "patient_id": "PAT0058",
+    "procedure_code": "PROC-005",
+    "claim_amount": 60616.01,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": "P002"
+  },
+  {
+    "claim_id": "C00041",
+    "provider_id": "P002",
+    "patient_id": "PAT0067",
+    "procedure_code": "PROC-001",
+    "claim_amount": 62065.06,
+    "claim_date": "2026-08-03",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00042",
+    "provider_id": "P002",
+    "patient_id": "PAT0089",
+    "procedure_code": "PROC-002",
+    "claim_amount": 58916.14,
+    "claim_date": "2026-07-10",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00043",
+    "provider_id": "P002",
+    "patient_id": "PAT0418",
+    "procedure_code": "PROC-002",
+    "claim_amount": 63243,
+    "claim_date": "2026-07-19",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00044",
+    "provider_id": "P002",
+    "patient_id": "PAT0224",
+    "procedure_code": "PROC-001",
+    "claim_amount": 64834.62,
+    "claim_date": "2026-07-21",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00045",
+    "provider_id": "P002",
+    "patient_id": "PAT0021",
+    "procedure_code": "PROC-004",
+    "claim_amount": 65931.53,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00046",
+    "provider_id": "P002",
+    "patient_id": "PAT0337",
+    "procedure_code": "PROC-003",
+    "claim_amount": 64755.66,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00047",
+    "provider_id": "P002",
+    "patient_id": "PAT0455",
+    "procedure_code": "PROC-004",
+    "claim_amount": 61705.5,
+    "claim_date": "2026-07-15",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00048",
+    "provider_id": "P002",
+    "patient_id": "PAT0587",
+    "procedure_code": "PROC-001",
+    "claim_amount": 64004.59,
+    "claim_date": "2026-07-19",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00049",
+    "provider_id": "P002",
+    "patient_id": "PAT0711",
+    "procedure_code": "PROC-003",
+    "claim_amount": 64607.01,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00050",
+    "provider_id": "P002",
+    "patient_id": "PAT0427",
+    "procedure_code": "PROC-005",
+    "claim_amount": 62311.75,
+    "claim_date": "2026-07-10",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00051",
+    "provider_id": "P002",
+    "patient_id": "PAT0249",
+    "procedure_code": "PROC-002",
+    "claim_amount": 60693.72,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00052",
+    "provider_id": "P002",
+    "patient_id": "PAT0417",
+    "procedure_code": "PROC-004",
+    "claim_amount": 65240.56,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00053",
+    "provider_id": "P002",
+    "patient_id": "PAT0454",
+    "procedure_code": "PROC-002",
+    "claim_amount": 64918.42,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00054",
+    "provider_id": "P002",
+    "patient_id": "PAT0049",
+    "procedure_code": "PROC-004",
+    "claim_amount": 58772.5,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00055",
+    "provider_id": "P002",
+    "patient_id": "PAT0387",
+    "procedure_code": "PROC-004",
+    "claim_amount": 64924.37,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00056",
+    "provider_id": "P002",
+    "patient_id": "PAT0576",
+    "procedure_code": "PROC-005",
+    "claim_amount": 56541.42,
+    "claim_date": "2026-08-28",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00057",
+    "provider_id": "P002",
+    "patient_id": "PAT0399",
+    "procedure_code": "PROC-005",
+    "claim_amount": 57985.48,
+    "claim_date": "2026-07-01",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00058",
+    "provider_id": "P002",
+    "patient_id": "PAT0258",
+    "procedure_code": "PROC-002",
+    "claim_amount": 61033.52,
+    "claim_date": "2026-08-20",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00059",
+    "provider_id": "P002",
+    "patient_id": "PAT0432",
+    "procedure_code": "PROC-004",
+    "claim_amount": 56418.49,
+    "claim_date": "2026-07-22",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00060",
+    "provider_id": "P002",
+    "patient_id": "PAT0574",
+    "procedure_code": "PROC-003",
+    "claim_amount": 63423.19,
+    "claim_date": "2026-07-10",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00061",
+    "provider_id": "P002",
+    "patient_id": "PAT0544",
+    "procedure_code": "PROC-001",
+    "claim_amount": 57683.47,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00062",
+    "provider_id": "P002",
+    "patient_id": "PAT0077",
+    "procedure_code": "PROC-002",
+    "claim_amount": 64762.54,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00063",
+    "provider_id": "P002",
+    "patient_id": "PAT0277",
+    "procedure_code": "PROC-005",
+    "claim_amount": 59776.91,
+    "claim_date": "2026-08-20",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00064",
+    "provider_id": "P002",
+    "patient_id": "PAT0198",
+    "procedure_code": "PROC-004",
+    "claim_amount": 56306.39,
+    "claim_date": "2026-08-27",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00065",
+    "provider_id": "P002",
+    "patient_id": "PAT0767",
+    "procedure_code": "PROC-004",
+    "claim_amount": 59912.98,
+    "claim_date": "2026-08-02",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00066",
+    "provider_id": "P002",
+    "patient_id": "PAT0164",
+    "procedure_code": "PROC-001",
+    "claim_amount": 62249.42,
+    "claim_date": "2026-07-24",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00067",
+    "provider_id": "P002",
+    "patient_id": "PAT0005",
+    "procedure_code": "PROC-002",
+    "claim_amount": 62399.16,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00068",
+    "provider_id": "P002",
+    "patient_id": "PAT0329",
+    "procedure_code": "PROC-003",
+    "claim_amount": 62955.45,
+    "claim_date": "2026-07-02",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00069",
+    "provider_id": "P002",
+    "patient_id": "PAT0661",
+    "procedure_code": "PROC-003",
+    "claim_amount": 63425.15,
+    "claim_date": "2026-07-28",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00070",
+    "provider_id": "P002",
+    "patient_id": "PAT0214",
+    "procedure_code": "PROC-002",
+    "claim_amount": 60085.69,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00071",
+    "provider_id": "P002",
+    "patient_id": "PAT0053",
+    "procedure_code": "PROC-001",
+    "claim_amount": 61284.52,
+    "claim_date": "2026-08-11",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00072",
+    "provider_id": "P002",
+    "patient_id": "PAT0429",
+    "procedure_code": "PROC-001",
+    "claim_amount": 64496.77,
+    "claim_date": "2026-08-01",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00073",
+    "provider_id": "P002",
+    "patient_id": "PAT0032",
+    "procedure_code": "PROC-001",
+    "claim_amount": 60697.8,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00074",
+    "provider_id": "P002",
+    "patient_id": "PAT0626",
+    "procedure_code": "PROC-004",
+    "claim_amount": 56822.72,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00075",
+    "provider_id": "P002",
+    "patient_id": "PAT0169",
+    "procedure_code": "PROC-003",
+    "claim_amount": 62244.18,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00076",
+    "provider_id": "P002",
+    "patient_id": "PAT0186",
+    "procedure_code": "PROC-004",
+    "claim_amount": 57175.13,
+    "claim_date": "2026-07-03",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00077",
+    "provider_id": "P002",
+    "patient_id": "PAT0329",
+    "procedure_code": "PROC-002",
+    "claim_amount": 63599.8,
+    "claim_date": "2026-08-29",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00078",
+    "provider_id": "P002",
+    "patient_id": "PAT0749",
+    "procedure_code": "PROC-005",
+    "claim_amount": 60561.65,
+    "claim_date": "2026-08-15",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00079",
+    "provider_id": "P002",
+    "patient_id": "PAT0586",
+    "procedure_code": "PROC-003",
+    "claim_amount": 56355.64,
+    "claim_date": "2026-08-13",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00080",
+    "provider_id": "P002",
+    "patient_id": "PAT0272",
+    "procedure_code": "PROC-003",
+    "claim_amount": 64937.37,
+    "claim_date": "2026-07-03",
+    "specialty": "General Medicine",
+    "referred_to": "P003"
+  },
+  {
+    "claim_id": "C00081",
+    "provider_id": "P003",
+    "patient_id": "PAT0731",
+    "procedure_code": "PROC-001",
+    "claim_amount": 95652.25,
+    "claim_date": "2026-07-09",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00082",
+    "provider_id": "P003",
+    "patient_id": "PAT0058",
+    "procedure_code": "PROC-002",
+    "claim_amount": 94762.02,
+    "claim_date": "2026-08-25",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00083",
+    "provider_id": "P003",
+    "patient_id": "PAT0332",
+    "procedure_code": "PROC-003",
+    "claim_amount": 95418.82,
+    "claim_date": "2026-08-18",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00084",
+    "provider_id": "P003",
+    "patient_id": "PAT0752",
+    "procedure_code": "PROC-004",
+    "claim_amount": 96023.18,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00085",
+    "provider_id": "P003",
+    "patient_id": "PAT0373",
+    "procedure_code": "PROC-004",
+    "claim_amount": 96726.82,
+    "claim_date": "2026-07-10",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00086",
+    "provider_id": "P003",
+    "patient_id": "PAT0436",
+    "procedure_code": "PROC-004",
+    "claim_amount": 89753.52,
+    "claim_date": "2026-07-09",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00087",
+    "provider_id": "P003",
+    "patient_id": "PAT0247",
+    "procedure_code": "PROC-002",
+    "claim_amount": 96787.39,
+    "claim_date": "2026-08-28",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00088",
+    "provider_id": "P003",
+    "patient_id": "PAT0128",
+    "procedure_code": "PROC-003",
+    "claim_amount": 94593.12,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00089",
+    "provider_id": "P003",
+    "patient_id": "PAT0301",
+    "procedure_code": "PROC-004",
+    "claim_amount": 94272.16,
+    "claim_date": "2026-08-07",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00090",
+    "provider_id": "P003",
+    "patient_id": "PAT0330",
+    "procedure_code": "PROC-001",
+    "claim_amount": 91647.54,
+    "claim_date": "2026-07-26",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00091",
+    "provider_id": "P003",
+    "patient_id": "PAT0096",
+    "procedure_code": "PROC-003",
+    "claim_amount": 97518.39,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00092",
+    "provider_id": "P003",
+    "patient_id": "PAT0274",
+    "procedure_code": "PROC-004",
+    "claim_amount": 88563.35,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00093",
+    "provider_id": "P003",
+    "patient_id": "PAT0578",
+    "procedure_code": "PROC-002",
+    "claim_amount": 97206.8,
+    "claim_date": "2026-08-22",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00094",
+    "provider_id": "P003",
+    "patient_id": "PAT0357",
+    "procedure_code": "PROC-002",
+    "claim_amount": 89159.41,
+    "claim_date": "2026-08-07",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00095",
+    "provider_id": "P003",
+    "patient_id": "PAT0791",
+    "procedure_code": "PROC-005",
+    "claim_amount": 89156.84,
+    "claim_date": "2026-07-19",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00096",
+    "provider_id": "P003",
+    "patient_id": "PAT0458",
+    "procedure_code": "PROC-003",
+    "claim_amount": 92752.88,
+    "claim_date": "2026-07-10",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00097",
+    "provider_id": "P003",
+    "patient_id": "PAT0246",
+    "procedure_code": "PROC-003",
+    "claim_amount": 90038.74,
+    "claim_date": "2026-07-31",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00098",
+    "provider_id": "P003",
+    "patient_id": "PAT0030",
+    "procedure_code": "PROC-004",
+    "claim_amount": 90356.31,
+    "claim_date": "2026-07-16",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00099",
+    "provider_id": "P003",
+    "patient_id": "PAT0159",
+    "procedure_code": "PROC-004",
+    "claim_amount": 94749.74,
+    "claim_date": "2026-07-18",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00100",
+    "provider_id": "P003",
+    "patient_id": "PAT0188",
+    "procedure_code": "PROC-002",
+    "claim_amount": 90603.65,
+    "claim_date": "2026-08-27",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00101",
+    "provider_id": "P003",
+    "patient_id": "PAT0011",
+    "procedure_code": "PROC-003",
+    "claim_amount": 91236.51,
+    "claim_date": "2026-08-06",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00102",
+    "provider_id": "P003",
+    "patient_id": "PAT0547",
+    "procedure_code": "PROC-002",
+    "claim_amount": 95736.16,
+    "claim_date": "2026-07-11",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00103",
+    "provider_id": "P003",
+    "patient_id": "PAT0317",
+    "procedure_code": "PROC-002",
+    "claim_amount": 97246.76,
+    "claim_date": "2026-07-03",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00104",
+    "provider_id": "P003",
+    "patient_id": "PAT0287",
+    "procedure_code": "PROC-003",
+    "claim_amount": 90520.52,
+    "claim_date": "2026-07-15",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00105",
+    "provider_id": "P003",
+    "patient_id": "PAT0691",
+    "procedure_code": "PROC-004",
+    "claim_amount": 97874.8,
+    "claim_date": "2026-08-04",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00106",
+    "provider_id": "P003",
+    "patient_id": "PAT0531",
+    "procedure_code": "PROC-002",
+    "claim_amount": 94890.28,
+    "claim_date": "2026-07-30",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00107",
+    "provider_id": "P003",
+    "patient_id": "PAT0768",
+    "procedure_code": "PROC-005",
+    "claim_amount": 97138.21,
+    "claim_date": "2026-08-05",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00108",
+    "provider_id": "P003",
+    "patient_id": "PAT0781",
+    "procedure_code": "PROC-002",
+    "claim_amount": 94436.99,
+    "claim_date": "2026-08-08",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00109",
+    "provider_id": "P003",
+    "patient_id": "PAT0675",
+    "procedure_code": "PROC-003",
+    "claim_amount": 93322.23,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00110",
+    "provider_id": "P003",
+    "patient_id": "PAT0688",
+    "procedure_code": "PROC-004",
+    "claim_amount": 94978.87,
+    "claim_date": "2026-07-24",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00111",
+    "provider_id": "P003",
+    "patient_id": "PAT0285",
+    "procedure_code": "PROC-002",
+    "claim_amount": 96552.06,
+    "claim_date": "2026-07-27",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00112",
+    "provider_id": "P003",
+    "patient_id": "PAT0061",
+    "procedure_code": "PROC-002",
+    "claim_amount": 91301.81,
+    "claim_date": "2026-07-21",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00113",
+    "provider_id": "P003",
+    "patient_id": "PAT0771",
+    "procedure_code": "PROC-004",
+    "claim_amount": 88298.91,
+    "claim_date": "2026-07-23",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00114",
+    "provider_id": "P003",
+    "patient_id": "PAT0192",
+    "procedure_code": "PROC-002",
+    "claim_amount": 88831.49,
+    "claim_date": "2026-07-29",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00115",
+    "provider_id": "P003",
+    "patient_id": "PAT0087",
+    "procedure_code": "PROC-003",
+    "claim_amount": 89450.9,
+    "claim_date": "2026-08-01",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00116",
+    "provider_id": "P003",
+    "patient_id": "PAT0334",
+    "procedure_code": "PROC-005",
+    "claim_amount": 88776.91,
+    "claim_date": "2026-08-15",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00117",
+    "provider_id": "P003",
+    "patient_id": "PAT0314",
+    "procedure_code": "PROC-004",
+    "claim_amount": 88025.05,
+    "claim_date": "2026-07-07",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00118",
+    "provider_id": "P003",
+    "patient_id": "PAT0261",
+    "procedure_code": "PROC-003",
+    "claim_amount": 88695.57,
+    "claim_date": "2026-07-03",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00119",
+    "provider_id": "P003",
+    "patient_id": "PAT0073",
+    "procedure_code": "PROC-005",
+    "claim_amount": 88498.25,
+    "claim_date": "2026-07-25",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00120",
+    "provider_id": "P003",
+    "patient_id": "PAT0163",
+    "procedure_code": "PROC-005",
+    "claim_amount": 93432.34,
+    "claim_date": "2026-07-08",
+    "specialty": "Orthopedics",
+    "referred_to": "P001"
+  },
+  {
+    "claim_id": "C00121",
+    "provider_id": "P004",
+    "patient_id": "PAT0679",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13213.53,
+    "claim_date": "2026-08-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00122",
+    "provider_id": "P004",
+    "patient_id": "PAT0485",
+    "procedure_code": "PROC-001",
+    "claim_amount": 13799.66,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00123",
+    "provider_id": "P004",
+    "patient_id": "PAT0759",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15903.54,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00124",
+    "provider_id": "P004",
+    "patient_id": "PAT0263",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14593.48,
+    "claim_date": "2026-07-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00125",
+    "provider_id": "P004",
+    "patient_id": "PAT0258",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13639.67,
+    "claim_date": "2026-07-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00126",
+    "provider_id": "P004",
+    "patient_id": "PAT0137",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12222.94,
+    "claim_date": "2026-08-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00127",
+    "provider_id": "P004",
+    "patient_id": "PAT0774",
+    "procedure_code": "PROC-002",
+    "claim_amount": 13712.71,
+    "claim_date": "2026-07-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00128",
+    "provider_id": "P004",
+    "patient_id": "PAT0356",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12394.2,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00129",
+    "provider_id": "P004",
+    "patient_id": "PAT0511",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12831.27,
+    "claim_date": "2026-08-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00130",
+    "provider_id": "P004",
+    "patient_id": "PAT0244",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13284.59,
+    "claim_date": "2026-07-31",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00131",
+    "provider_id": "P004",
+    "patient_id": "PAT0521",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15817.98,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00132",
+    "provider_id": "P004",
+    "patient_id": "PAT0214",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12986.8,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00133",
+    "provider_id": "P004",
+    "patient_id": "PAT0751",
+    "procedure_code": "PROC-004",
+    "claim_amount": 12016.83,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00134",
+    "provider_id": "P004",
+    "patient_id": "PAT0071",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15026.1,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00135",
+    "provider_id": "P004",
+    "patient_id": "PAT0513",
+    "procedure_code": "PROC-002",
+    "claim_amount": 13152.59,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00136",
+    "provider_id": "P004",
+    "patient_id": "PAT0206",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12382.34,
+    "claim_date": "2026-07-31",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00137",
+    "provider_id": "P004",
+    "patient_id": "PAT0586",
+    "procedure_code": "PROC-002",
+    "claim_amount": 15711.7,
+    "claim_date": "2026-08-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00138",
+    "provider_id": "P004",
+    "patient_id": "PAT0641",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13643.25,
+    "claim_date": "2026-08-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00139",
+    "provider_id": "P004",
+    "patient_id": "PAT0131",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15794.03,
+    "claim_date": "2026-08-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00140",
+    "provider_id": "P004",
+    "patient_id": "PAT0712",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12740.85,
+    "claim_date": "2026-08-22",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00141",
+    "provider_id": "P004",
+    "patient_id": "PAT0425",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14772.51,
+    "claim_date": "2026-07-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00142",
+    "provider_id": "P004",
+    "patient_id": "PAT0737",
+    "procedure_code": "PROC-002",
+    "claim_amount": 15376.28,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00143",
+    "provider_id": "P004",
+    "patient_id": "PAT0079",
+    "procedure_code": "PROC-002",
+    "claim_amount": 14348.94,
+    "claim_date": "2026-08-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00144",
+    "provider_id": "P004",
+    "patient_id": "PAT0011",
+    "procedure_code": "PROC-004",
+    "claim_amount": 15675.36,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00145",
+    "provider_id": "P004",
+    "patient_id": "PAT0505",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14971.53,
+    "claim_date": "2026-08-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00146",
+    "provider_id": "P004",
+    "patient_id": "PAT0788",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12964.02,
+    "claim_date": "2026-08-05",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00147",
+    "provider_id": "P004",
+    "patient_id": "PAT0671",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12424.04,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00148",
+    "provider_id": "P004",
+    "patient_id": "PAT0525",
+    "procedure_code": "PROC-004",
+    "claim_amount": 15645.41,
+    "claim_date": "2026-07-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00149",
+    "provider_id": "P004",
+    "patient_id": "PAT0762",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14069.79,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00150",
+    "provider_id": "P004",
+    "patient_id": "PAT0586",
+    "procedure_code": "PROC-001",
+    "claim_amount": 15761.02,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00151",
+    "provider_id": "P004",
+    "patient_id": "PAT0541",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14924.58,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00152",
+    "provider_id": "P004",
+    "patient_id": "PAT0284",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12295.54,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00153",
+    "provider_id": "P004",
+    "patient_id": "PAT0549",
+    "procedure_code": "PROC-002",
+    "claim_amount": 13316.98,
+    "claim_date": "2026-08-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00154",
+    "provider_id": "P004",
+    "patient_id": "PAT0278",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12874.55,
+    "claim_date": "2026-08-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00155",
+    "provider_id": "P004",
+    "patient_id": "PAT0487",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15826.87,
+    "claim_date": "2026-08-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00156",
+    "provider_id": "P004",
+    "patient_id": "PAT0472",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13435.59,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00157",
+    "provider_id": "P004",
+    "patient_id": "PAT0745",
+    "procedure_code": "PROC-001",
+    "claim_amount": 15848.53,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00158",
+    "provider_id": "P004",
+    "patient_id": "PAT0004",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14359.17,
+    "claim_date": "2026-08-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00159",
+    "provider_id": "P004",
+    "patient_id": "PAT0420",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15936.98,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00160",
+    "provider_id": "P004",
+    "patient_id": "PAT0613",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15200.21,
+    "claim_date": "2026-07-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00161",
+    "provider_id": "P005",
+    "patient_id": "PAT0306",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2909.22,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00162",
+    "provider_id": "P005",
+    "patient_id": "PAT0197",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3375.96,
+    "claim_date": "2026-07-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00163",
+    "provider_id": "P005",
+    "patient_id": "PAT0292",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3245.89,
+    "claim_date": "2026-07-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00164",
+    "provider_id": "P005",
+    "patient_id": "PAT0152",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2336,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00165",
+    "provider_id": "P005",
+    "patient_id": "PAT0414",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2712.12,
+    "claim_date": "2026-08-05",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00166",
+    "provider_id": "P005",
+    "patient_id": "PAT0340",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2661.12,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00167",
+    "provider_id": "P005",
+    "patient_id": "PAT0308",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3120.81,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00168",
+    "provider_id": "P005",
+    "patient_id": "PAT0157",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2906.98,
+    "claim_date": "2026-07-05",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00169",
+    "provider_id": "P005",
+    "patient_id": "PAT0382",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3229.38,
+    "claim_date": "2026-07-22",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00170",
+    "provider_id": "P005",
+    "patient_id": "PAT0456",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4112.2,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00171",
+    "provider_id": "P005",
+    "patient_id": "PAT0096",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2592.5,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00172",
+    "provider_id": "P005",
+    "patient_id": "PAT0777",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2589.7,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00173",
+    "provider_id": "P005",
+    "patient_id": "PAT0109",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3722.13,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00174",
+    "provider_id": "P005",
+    "patient_id": "PAT0228",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2493.39,
+    "claim_date": "2026-07-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00175",
+    "provider_id": "P005",
+    "patient_id": "PAT0644",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3601.05,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00176",
+    "provider_id": "P005",
+    "patient_id": "PAT0258",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3312.99,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00177",
+    "provider_id": "P005",
+    "patient_id": "PAT0619",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3845.74,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00178",
+    "provider_id": "P005",
+    "patient_id": "PAT0167",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3572.62,
+    "claim_date": "2026-08-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00179",
+    "provider_id": "P005",
+    "patient_id": "PAT0226",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2858.27,
+    "claim_date": "2026-08-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00180",
+    "provider_id": "P005",
+    "patient_id": "PAT0037",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3692.63,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00181",
+    "provider_id": "P005",
+    "patient_id": "PAT0655",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3559.64,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00182",
+    "provider_id": "P005",
+    "patient_id": "PAT0043",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3854,
+    "claim_date": "2026-07-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00183",
+    "provider_id": "P005",
+    "patient_id": "PAT0546",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4038.7,
+    "claim_date": "2026-07-31",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00184",
+    "provider_id": "P005",
+    "patient_id": "PAT0077",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2937.54,
+    "claim_date": "2026-08-22",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00185",
+    "provider_id": "P005",
+    "patient_id": "PAT0469",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3691.88,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00186",
+    "provider_id": "P005",
+    "patient_id": "PAT0007",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2527.66,
+    "claim_date": "2026-07-31",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00187",
+    "provider_id": "P005",
+    "patient_id": "PAT0625",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4026.94,
+    "claim_date": "2026-08-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00188",
+    "provider_id": "P005",
+    "patient_id": "PAT0359",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3812.06,
+    "claim_date": "2026-08-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00189",
+    "provider_id": "P005",
+    "patient_id": "PAT0299",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2666.88,
+    "claim_date": "2026-07-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00190",
+    "provider_id": "P005",
+    "patient_id": "PAT0312",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3584.64,
+    "claim_date": "2026-08-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00191",
+    "provider_id": "P005",
+    "patient_id": "PAT0343",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3167.93,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00192",
+    "provider_id": "P005",
+    "patient_id": "PAT0206",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3038.32,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00193",
+    "provider_id": "P005",
+    "patient_id": "PAT0367",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4001.89,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00194",
+    "provider_id": "P005",
+    "patient_id": "PAT0152",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3912.34,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00195",
+    "provider_id": "P005",
+    "patient_id": "PAT0392",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3408.52,
+    "claim_date": "2026-08-16",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00196",
+    "provider_id": "P005",
+    "patient_id": "PAT0472",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3012.28,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00197",
+    "provider_id": "P005",
+    "patient_id": "PAT0268",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3624.12,
+    "claim_date": "2026-08-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00198",
+    "provider_id": "P005",
+    "patient_id": "PAT0243",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2601.88,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00199",
+    "provider_id": "P005",
+    "patient_id": "PAT0103",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4142.71,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00200",
+    "provider_id": "P005",
+    "patient_id": "PAT0637",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2647.01,
+    "claim_date": "2026-07-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00201",
+    "provider_id": "P006",
+    "patient_id": "PAT0577",
+    "procedure_code": "PROC-001",
+    "claim_amount": 30047.27,
+    "claim_date": "2026-08-14",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00202",
+    "provider_id": "P006",
+    "patient_id": "PAT0262",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33425.89,
+    "claim_date": "2026-08-18",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00203",
+    "provider_id": "P006",
+    "patient_id": "PAT0296",
+    "procedure_code": "PROC-003",
+    "claim_amount": 30395.33,
+    "claim_date": "2026-08-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00204",
+    "provider_id": "P006",
+    "patient_id": "PAT0525",
+    "procedure_code": "PROC-005",
+    "claim_amount": 29173.54,
+    "claim_date": "2026-07-17",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00205",
+    "provider_id": "P006",
+    "patient_id": "PAT0203",
+    "procedure_code": "PROC-003",
+    "claim_amount": 33343.87,
+    "claim_date": "2026-07-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00206",
+    "provider_id": "P006",
+    "patient_id": "PAT0432",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30113.4,
+    "claim_date": "2026-08-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00207",
+    "provider_id": "P006",
+    "patient_id": "PAT0329",
+    "procedure_code": "PROC-001",
+    "claim_amount": 33428.58,
+    "claim_date": "2026-07-22",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00208",
+    "provider_id": "P006",
+    "patient_id": "PAT0223",
+    "procedure_code": "PROC-004",
+    "claim_amount": 30640.71,
+    "claim_date": "2026-07-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00209",
+    "provider_id": "P006",
+    "patient_id": "PAT0007",
+    "procedure_code": "PROC-003",
+    "claim_amount": 31661.18,
+    "claim_date": "2026-08-05",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00210",
+    "provider_id": "P006",
+    "patient_id": "PAT0352",
+    "procedure_code": "PROC-001",
+    "claim_amount": 33138.95,
+    "claim_date": "2026-07-03",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00211",
+    "provider_id": "P006",
+    "patient_id": "PAT0052",
+    "procedure_code": "PROC-003",
+    "claim_amount": 33249.37,
+    "claim_date": "2026-07-22",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00212",
+    "provider_id": "P006",
+    "patient_id": "PAT0387",
+    "procedure_code": "PROC-002",
+    "claim_amount": 31110.97,
+    "claim_date": "2026-07-21",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00213",
+    "provider_id": "P006",
+    "patient_id": "PAT0629",
+    "procedure_code": "PROC-005",
+    "claim_amount": 28746.26,
+    "claim_date": "2026-07-24",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00214",
+    "provider_id": "P006",
+    "patient_id": "PAT0353",
+    "procedure_code": "PROC-003",
+    "claim_amount": 33913.02,
+    "claim_date": "2026-07-22",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00215",
+    "provider_id": "P006",
+    "patient_id": "PAT0257",
+    "procedure_code": "PROC-002",
+    "claim_amount": 31565.8,
+    "claim_date": "2026-07-25",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00216",
+    "provider_id": "P006",
+    "patient_id": "PAT0003",
+    "procedure_code": "PROC-004",
+    "claim_amount": 32002.96,
+    "claim_date": "2026-08-27",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00217",
+    "provider_id": "P006",
+    "patient_id": "PAT0176",
+    "procedure_code": "PROC-005",
+    "claim_amount": 29067.62,
+    "claim_date": "2026-08-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00218",
+    "provider_id": "P006",
+    "patient_id": "PAT0190",
+    "procedure_code": "PROC-002",
+    "claim_amount": 29056.42,
+    "claim_date": "2026-07-13",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00219",
+    "provider_id": "P006",
+    "patient_id": "PAT0341",
+    "procedure_code": "PROC-004",
+    "claim_amount": 30697.95,
+    "claim_date": "2026-07-25",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00220",
+    "provider_id": "P006",
+    "patient_id": "PAT0696",
+    "procedure_code": "PROC-003",
+    "claim_amount": 28656.92,
+    "claim_date": "2026-07-10",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00221",
+    "provider_id": "P006",
+    "patient_id": "PAT0674",
+    "procedure_code": "PROC-004",
+    "claim_amount": 32212.76,
+    "claim_date": "2026-08-08",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00222",
+    "provider_id": "P006",
+    "patient_id": "PAT0505",
+    "procedure_code": "PROC-005",
+    "claim_amount": 31467.21,
+    "claim_date": "2026-07-14",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00223",
+    "provider_id": "P006",
+    "patient_id": "PAT0243",
+    "procedure_code": "PROC-001",
+    "claim_amount": 30039.89,
+    "claim_date": "2026-07-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00224",
+    "provider_id": "P006",
+    "patient_id": "PAT0137",
+    "procedure_code": "PROC-005",
+    "claim_amount": 31656.29,
+    "claim_date": "2026-08-22",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00225",
+    "provider_id": "P006",
+    "patient_id": "PAT0448",
+    "procedure_code": "PROC-003",
+    "claim_amount": 29587.58,
+    "claim_date": "2026-07-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00226",
+    "provider_id": "P006",
+    "patient_id": "PAT0282",
+    "procedure_code": "PROC-004",
+    "claim_amount": 30299.41,
+    "claim_date": "2026-07-02",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00227",
+    "provider_id": "P006",
+    "patient_id": "PAT0110",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33283.99,
+    "claim_date": "2026-07-21",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00228",
+    "provider_id": "P006",
+    "patient_id": "PAT0790",
+    "procedure_code": "PROC-004",
+    "claim_amount": 30631.68,
+    "claim_date": "2026-08-16",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00229",
+    "provider_id": "P006",
+    "patient_id": "PAT0243",
+    "procedure_code": "PROC-004",
+    "claim_amount": 29401.77,
+    "claim_date": "2026-08-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00230",
+    "provider_id": "P006",
+    "patient_id": "PAT0483",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30355.23,
+    "claim_date": "2026-07-24",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00231",
+    "provider_id": "P006",
+    "patient_id": "PAT0641",
+    "procedure_code": "PROC-002",
+    "claim_amount": 29020.14,
+    "claim_date": "2026-08-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00232",
+    "provider_id": "P006",
+    "patient_id": "PAT0277",
+    "procedure_code": "PROC-005",
+    "claim_amount": 28228.28,
+    "claim_date": "2026-07-27",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00233",
+    "provider_id": "P006",
+    "patient_id": "PAT0073",
+    "procedure_code": "PROC-005",
+    "claim_amount": 30931.08,
+    "claim_date": "2026-07-27",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00234",
+    "provider_id": "P006",
+    "patient_id": "PAT0026",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31703.45,
+    "claim_date": "2026-08-28",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00235",
+    "provider_id": "P006",
+    "patient_id": "PAT0626",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31071.62,
+    "claim_date": "2026-07-08",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00236",
+    "provider_id": "P006",
+    "patient_id": "PAT0131",
+    "procedure_code": "PROC-003",
+    "claim_amount": 29423.17,
+    "claim_date": "2026-08-01",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00237",
+    "provider_id": "P006",
+    "patient_id": "PAT0690",
+    "procedure_code": "PROC-004",
+    "claim_amount": 29363.58,
+    "claim_date": "2026-08-07",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00238",
+    "provider_id": "P006",
+    "patient_id": "PAT0644",
+    "procedure_code": "PROC-003",
+    "claim_amount": 31539.38,
+    "claim_date": "2026-07-23",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00239",
+    "provider_id": "P006",
+    "patient_id": "PAT0346",
+    "procedure_code": "PROC-001",
+    "claim_amount": 31392.97,
+    "claim_date": "2026-07-16",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00240",
+    "provider_id": "P006",
+    "patient_id": "PAT0721",
+    "procedure_code": "PROC-001",
+    "claim_amount": 32048.21,
+    "claim_date": "2026-08-13",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00241",
+    "provider_id": "P007",
+    "patient_id": "PAT0183",
+    "procedure_code": "PROC-001",
+    "claim_amount": 30878.1,
+    "claim_date": "2026-07-02",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00242",
+    "provider_id": "P007",
+    "patient_id": "PAT0153",
+    "procedure_code": "PROC-003",
+    "claim_amount": 33787,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00243",
+    "provider_id": "P007",
+    "patient_id": "PAT0434",
+    "procedure_code": "PROC-002",
+    "claim_amount": 31496.15,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00244",
+    "provider_id": "P007",
+    "patient_id": "PAT0169",
+    "procedure_code": "PROC-004",
+    "claim_amount": 32399.55,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00245",
+    "provider_id": "P007",
+    "patient_id": "PAT0307",
+    "procedure_code": "PROC-001",
+    "claim_amount": 29598.73,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00246",
+    "provider_id": "P007",
+    "patient_id": "PAT0719",
+    "procedure_code": "PROC-004",
+    "claim_amount": 33617.32,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00247",
+    "provider_id": "P007",
+    "patient_id": "PAT0246",
+    "procedure_code": "PROC-003",
+    "claim_amount": 28753.64,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00248",
+    "provider_id": "P007",
+    "patient_id": "PAT0490",
+    "procedure_code": "PROC-001",
+    "claim_amount": 30364.84,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00249",
+    "provider_id": "P007",
+    "patient_id": "PAT0571",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30999.11,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00250",
+    "provider_id": "P007",
+    "patient_id": "PAT0332",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31209.91,
+    "claim_date": "2026-07-30",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00251",
+    "provider_id": "P007",
+    "patient_id": "PAT0708",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33643.92,
+    "claim_date": "2026-08-02",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00252",
+    "provider_id": "P007",
+    "patient_id": "PAT0574",
+    "procedure_code": "PROC-002",
+    "claim_amount": 31760.87,
+    "claim_date": "2026-08-19",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00253",
+    "provider_id": "P007",
+    "patient_id": "PAT0391",
+    "procedure_code": "PROC-003",
+    "claim_amount": 32148.96,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00254",
+    "provider_id": "P007",
+    "patient_id": "PAT0328",
+    "procedure_code": "PROC-001",
+    "claim_amount": 32507.05,
+    "claim_date": "2026-08-29",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00255",
+    "provider_id": "P007",
+    "patient_id": "PAT0767",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30979.48,
+    "claim_date": "2026-07-02",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00256",
+    "provider_id": "P007",
+    "patient_id": "PAT0754",
+    "procedure_code": "PROC-005",
+    "claim_amount": 29804.02,
+    "claim_date": "2026-07-22",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00257",
+    "provider_id": "P007",
+    "patient_id": "PAT0024",
+    "procedure_code": "PROC-002",
+    "claim_amount": 33914.07,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00258",
+    "provider_id": "P007",
+    "patient_id": "PAT0152",
+    "procedure_code": "PROC-005",
+    "claim_amount": 30770.4,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00259",
+    "provider_id": "P007",
+    "patient_id": "PAT0335",
+    "procedure_code": "PROC-005",
+    "claim_amount": 29690.54,
+    "claim_date": "2026-07-30",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00260",
+    "provider_id": "P007",
+    "patient_id": "PAT0505",
+    "procedure_code": "PROC-003",
+    "claim_amount": 30574.12,
+    "claim_date": "2026-08-03",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00261",
+    "provider_id": "P007",
+    "patient_id": "PAT0557",
+    "procedure_code": "PROC-005",
+    "claim_amount": 32282.12,
+    "claim_date": "2026-08-26",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00262",
+    "provider_id": "P007",
+    "patient_id": "PAT0157",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33019.8,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00263",
+    "provider_id": "P007",
+    "patient_id": "PAT0718",
+    "procedure_code": "PROC-005",
+    "claim_amount": 28127.44,
+    "claim_date": "2026-08-28",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00264",
+    "provider_id": "P007",
+    "patient_id": "PAT0411",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31529.57,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00265",
+    "provider_id": "P007",
+    "patient_id": "PAT0610",
+    "procedure_code": "PROC-004",
+    "claim_amount": 28631.12,
+    "claim_date": "2026-08-22",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00266",
+    "provider_id": "P007",
+    "patient_id": "PAT0014",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30509.32,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00267",
+    "provider_id": "P007",
+    "patient_id": "PAT0064",
+    "procedure_code": "PROC-004",
+    "claim_amount": 33604.08,
+    "claim_date": "2026-08-27",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00268",
+    "provider_id": "P007",
+    "patient_id": "PAT0639",
+    "procedure_code": "PROC-005",
+    "claim_amount": 29387.5,
+    "claim_date": "2026-08-07",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00269",
+    "provider_id": "P007",
+    "patient_id": "PAT0682",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33922.85,
+    "claim_date": "2026-08-23",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00270",
+    "provider_id": "P007",
+    "patient_id": "PAT0016",
+    "procedure_code": "PROC-001",
+    "claim_amount": 33665.67,
+    "claim_date": "2026-07-30",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00271",
+    "provider_id": "P007",
+    "patient_id": "PAT0480",
+    "procedure_code": "PROC-001",
+    "claim_amount": 30753.2,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00272",
+    "provider_id": "P007",
+    "patient_id": "PAT0212",
+    "procedure_code": "PROC-001",
+    "claim_amount": 33299.78,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00273",
+    "provider_id": "P007",
+    "patient_id": "PAT0689",
+    "procedure_code": "PROC-004",
+    "claim_amount": 29351.25,
+    "claim_date": "2026-07-05",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00274",
+    "provider_id": "P007",
+    "patient_id": "PAT0660",
+    "procedure_code": "PROC-005",
+    "claim_amount": 31218.6,
+    "claim_date": "2026-08-20",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00275",
+    "provider_id": "P007",
+    "patient_id": "PAT0587",
+    "procedure_code": "PROC-001",
+    "claim_amount": 29364.11,
+    "claim_date": "2026-07-07",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00276",
+    "provider_id": "P007",
+    "patient_id": "PAT0594",
+    "procedure_code": "PROC-001",
+    "claim_amount": 29331.24,
+    "claim_date": "2026-07-02",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00277",
+    "provider_id": "P007",
+    "patient_id": "PAT0363",
+    "procedure_code": "PROC-003",
+    "claim_amount": 29495.51,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00278",
+    "provider_id": "P007",
+    "patient_id": "PAT0653",
+    "procedure_code": "PROC-005",
+    "claim_amount": 30350.04,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00279",
+    "provider_id": "P007",
+    "patient_id": "PAT0396",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33674.84,
+    "claim_date": "2026-07-12",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00280",
+    "provider_id": "P007",
+    "patient_id": "PAT0082",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30031.82,
+    "claim_date": "2026-07-29",
+    "specialty": "Cardiology",
+    "referred_to": "P008"
+  },
+  {
+    "claim_id": "C00281",
+    "provider_id": "P008",
+    "patient_id": "PAT0112",
+    "procedure_code": "PROC-004",
+    "claim_amount": 43348.44,
+    "claim_date": "2026-08-22",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00282",
+    "provider_id": "P008",
+    "patient_id": "PAT0226",
+    "procedure_code": "PROC-004",
+    "claim_amount": 38144.53,
+    "claim_date": "2026-08-20",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00283",
+    "provider_id": "P008",
+    "patient_id": "PAT0722",
+    "procedure_code": "PROC-005",
+    "claim_amount": 40189.26,
+    "claim_date": "2026-07-29",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00284",
+    "provider_id": "P008",
+    "patient_id": "PAT0518",
+    "procedure_code": "PROC-004",
+    "claim_amount": 40286.22,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00285",
+    "provider_id": "P008",
+    "patient_id": "PAT0542",
+    "procedure_code": "PROC-005",
+    "claim_amount": 42901.28,
+    "claim_date": "2026-07-19",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00286",
+    "provider_id": "P008",
+    "patient_id": "PAT0016",
+    "procedure_code": "PROC-005",
+    "claim_amount": 39960.04,
+    "claim_date": "2026-07-24",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00287",
+    "provider_id": "P008",
+    "patient_id": "PAT0446",
+    "procedure_code": "PROC-005",
+    "claim_amount": 42691.54,
+    "claim_date": "2026-08-17",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00288",
+    "provider_id": "P008",
+    "patient_id": "PAT0517",
+    "procedure_code": "PROC-003",
+    "claim_amount": 41759.2,
+    "claim_date": "2026-07-10",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00289",
+    "provider_id": "P008",
+    "patient_id": "PAT0465",
+    "procedure_code": "PROC-005",
+    "claim_amount": 40403.65,
+    "claim_date": "2026-07-02",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00290",
+    "provider_id": "P008",
+    "patient_id": "PAT0551",
+    "procedure_code": "PROC-005",
+    "claim_amount": 39522.29,
+    "claim_date": "2026-07-12",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00291",
+    "provider_id": "P008",
+    "patient_id": "PAT0587",
+    "procedure_code": "PROC-004",
+    "claim_amount": 41460.58,
+    "claim_date": "2026-08-09",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00292",
+    "provider_id": "P008",
+    "patient_id": "PAT0258",
+    "procedure_code": "PROC-002",
+    "claim_amount": 41329.58,
+    "claim_date": "2026-08-12",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00293",
+    "provider_id": "P008",
+    "patient_id": "PAT0682",
+    "procedure_code": "PROC-005",
+    "claim_amount": 42004.23,
+    "claim_date": "2026-08-01",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00294",
+    "provider_id": "P008",
+    "patient_id": "PAT0311",
+    "procedure_code": "PROC-005",
+    "claim_amount": 42995.02,
+    "claim_date": "2026-08-22",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00295",
+    "provider_id": "P008",
+    "patient_id": "PAT0198",
+    "procedure_code": "PROC-003",
+    "claim_amount": 38452.96,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00296",
+    "provider_id": "P008",
+    "patient_id": "PAT0556",
+    "procedure_code": "PROC-005",
+    "claim_amount": 43126.97,
+    "claim_date": "2026-07-31",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00297",
+    "provider_id": "P008",
+    "patient_id": "PAT0704",
+    "procedure_code": "PROC-002",
+    "claim_amount": 42678.13,
+    "claim_date": "2026-07-14",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00298",
+    "provider_id": "P008",
+    "patient_id": "PAT0288",
+    "procedure_code": "PROC-002",
+    "claim_amount": 39451.21,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00299",
+    "provider_id": "P008",
+    "patient_id": "PAT0309",
+    "procedure_code": "PROC-003",
+    "claim_amount": 43852.76,
+    "claim_date": "2026-08-02",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00300",
+    "provider_id": "P008",
+    "patient_id": "PAT0759",
+    "procedure_code": "PROC-005",
+    "claim_amount": 41802.01,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00301",
+    "provider_id": "P008",
+    "patient_id": "PAT0334",
+    "procedure_code": "PROC-002",
+    "claim_amount": 43524.08,
+    "claim_date": "2026-08-21",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00302",
+    "provider_id": "P008",
+    "patient_id": "PAT0419",
+    "procedure_code": "PROC-002",
+    "claim_amount": 39822.83,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00303",
+    "provider_id": "P008",
+    "patient_id": "PAT0512",
+    "procedure_code": "PROC-001",
+    "claim_amount": 41948.68,
+    "claim_date": "2026-08-24",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00304",
+    "provider_id": "P008",
+    "patient_id": "PAT0469",
+    "procedure_code": "PROC-003",
+    "claim_amount": 43167.06,
+    "claim_date": "2026-08-17",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00305",
+    "provider_id": "P008",
+    "patient_id": "PAT0488",
+    "procedure_code": "PROC-005",
+    "claim_amount": 39704.93,
+    "claim_date": "2026-08-17",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00306",
+    "provider_id": "P008",
+    "patient_id": "PAT0342",
+    "procedure_code": "PROC-002",
+    "claim_amount": 39528.91,
+    "claim_date": "2026-08-13",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00307",
+    "provider_id": "P008",
+    "patient_id": "PAT0232",
+    "procedure_code": "PROC-001",
+    "claim_amount": 41349.3,
+    "claim_date": "2026-08-27",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00308",
+    "provider_id": "P008",
+    "patient_id": "PAT0282",
+    "procedure_code": "PROC-005",
+    "claim_amount": 43460.82,
+    "claim_date": "2026-08-09",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00309",
+    "provider_id": "P008",
+    "patient_id": "PAT0051",
+    "procedure_code": "PROC-005",
+    "claim_amount": 38696.62,
+    "claim_date": "2026-07-21",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00310",
+    "provider_id": "P008",
+    "patient_id": "PAT0023",
+    "procedure_code": "PROC-004",
+    "claim_amount": 43001.48,
+    "claim_date": "2026-08-28",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00311",
+    "provider_id": "P008",
+    "patient_id": "PAT0195",
+    "procedure_code": "PROC-005",
+    "claim_amount": 41030.6,
+    "claim_date": "2026-07-13",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00312",
+    "provider_id": "P008",
+    "patient_id": "PAT0562",
+    "procedure_code": "PROC-003",
+    "claim_amount": 39339.48,
+    "claim_date": "2026-07-06",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00313",
+    "provider_id": "P008",
+    "patient_id": "PAT0230",
+    "procedure_code": "PROC-002",
+    "claim_amount": 38346.31,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00314",
+    "provider_id": "P008",
+    "patient_id": "PAT0313",
+    "procedure_code": "PROC-001",
+    "claim_amount": 40932.98,
+    "claim_date": "2026-08-15",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00315",
+    "provider_id": "P008",
+    "patient_id": "PAT0754",
+    "procedure_code": "PROC-004",
+    "claim_amount": 42558.22,
+    "claim_date": "2026-07-21",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00316",
+    "provider_id": "P008",
+    "patient_id": "PAT0533",
+    "procedure_code": "PROC-003",
+    "claim_amount": 39678.03,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00317",
+    "provider_id": "P008",
+    "patient_id": "PAT0327",
+    "procedure_code": "PROC-001",
+    "claim_amount": 41298.64,
+    "claim_date": "2026-07-03",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00318",
+    "provider_id": "P008",
+    "patient_id": "PAT0719",
+    "procedure_code": "PROC-004",
+    "claim_amount": 43389.43,
+    "claim_date": "2026-08-11",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00319",
+    "provider_id": "P008",
+    "patient_id": "PAT0229",
+    "procedure_code": "PROC-001",
+    "claim_amount": 41905.32,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00320",
+    "provider_id": "P008",
+    "patient_id": "PAT0355",
+    "procedure_code": "PROC-003",
+    "claim_amount": 43683.12,
+    "claim_date": "2026-07-22",
+    "specialty": "Orthopedics",
+    "referred_to": "P009"
+  },
+  {
+    "claim_id": "C00321",
+    "provider_id": "P009",
+    "patient_id": "PAT0037",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30737.38,
+    "claim_date": "2026-08-20",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00322",
+    "provider_id": "P009",
+    "patient_id": "PAT0608",
+    "procedure_code": "PROC-003",
+    "claim_amount": 32941.6,
+    "claim_date": "2026-07-16",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00323",
+    "provider_id": "P009",
+    "patient_id": "PAT0637",
+    "procedure_code": "PROC-004",
+    "claim_amount": 32358.79,
+    "claim_date": "2026-08-12",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00324",
+    "provider_id": "P009",
+    "patient_id": "PAT0101",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31993.84,
+    "claim_date": "2026-07-24",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00325",
+    "provider_id": "P009",
+    "patient_id": "PAT0125",
+    "procedure_code": "PROC-003",
+    "claim_amount": 28411.01,
+    "claim_date": "2026-07-19",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00326",
+    "provider_id": "P009",
+    "patient_id": "PAT0331",
+    "procedure_code": "PROC-003",
+    "claim_amount": 28471.82,
+    "claim_date": "2026-08-08",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00327",
+    "provider_id": "P009",
+    "patient_id": "PAT0138",
+    "procedure_code": "PROC-003",
+    "claim_amount": 29542.21,
+    "claim_date": "2026-08-29",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00328",
+    "provider_id": "P009",
+    "patient_id": "PAT0800",
+    "procedure_code": "PROC-004",
+    "claim_amount": 33097.84,
+    "claim_date": "2026-08-24",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00329",
+    "provider_id": "P009",
+    "patient_id": "PAT0671",
+    "procedure_code": "PROC-004",
+    "claim_amount": 29539.74,
+    "claim_date": "2026-07-04",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00330",
+    "provider_id": "P009",
+    "patient_id": "PAT0119",
+    "procedure_code": "PROC-005",
+    "claim_amount": 28395.97,
+    "claim_date": "2026-07-11",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00331",
+    "provider_id": "P009",
+    "patient_id": "PAT0294",
+    "procedure_code": "PROC-001",
+    "claim_amount": 28474.93,
+    "claim_date": "2026-07-22",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00332",
+    "provider_id": "P009",
+    "patient_id": "PAT0584",
+    "procedure_code": "PROC-004",
+    "claim_amount": 28277.69,
+    "claim_date": "2026-08-22",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00333",
+    "provider_id": "P009",
+    "patient_id": "PAT0464",
+    "procedure_code": "PROC-004",
+    "claim_amount": 28260.29,
+    "claim_date": "2026-07-08",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00334",
+    "provider_id": "P009",
+    "patient_id": "PAT0265",
+    "procedure_code": "PROC-001",
+    "claim_amount": 32442.67,
+    "claim_date": "2026-08-10",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00335",
+    "provider_id": "P009",
+    "patient_id": "PAT0775",
+    "procedure_code": "PROC-004",
+    "claim_amount": 30711.53,
+    "claim_date": "2026-07-27",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00336",
+    "provider_id": "P009",
+    "patient_id": "PAT0131",
+    "procedure_code": "PROC-001",
+    "claim_amount": 28269.66,
+    "claim_date": "2026-07-22",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00337",
+    "provider_id": "P009",
+    "patient_id": "PAT0019",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33202.48,
+    "claim_date": "2026-07-02",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00338",
+    "provider_id": "P009",
+    "patient_id": "PAT0574",
+    "procedure_code": "PROC-002",
+    "claim_amount": 28335.45,
+    "claim_date": "2026-08-08",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00339",
+    "provider_id": "P009",
+    "patient_id": "PAT0302",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30034.81,
+    "claim_date": "2026-08-21",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00340",
+    "provider_id": "P009",
+    "patient_id": "PAT0559",
+    "procedure_code": "PROC-005",
+    "claim_amount": 30171.4,
+    "claim_date": "2026-07-28",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00341",
+    "provider_id": "P009",
+    "patient_id": "PAT0447",
+    "procedure_code": "PROC-002",
+    "claim_amount": 28833.28,
+    "claim_date": "2026-07-09",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00342",
+    "provider_id": "P009",
+    "patient_id": "PAT0288",
+    "procedure_code": "PROC-002",
+    "claim_amount": 33439.29,
+    "claim_date": "2026-07-22",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00343",
+    "provider_id": "P009",
+    "patient_id": "PAT0538",
+    "procedure_code": "PROC-004",
+    "claim_amount": 29467.18,
+    "claim_date": "2026-08-18",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00344",
+    "provider_id": "P009",
+    "patient_id": "PAT0359",
+    "procedure_code": "PROC-004",
+    "claim_amount": 28745.61,
+    "claim_date": "2026-08-04",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00345",
+    "provider_id": "P009",
+    "patient_id": "PAT0544",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31045.42,
+    "claim_date": "2026-08-14",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00346",
+    "provider_id": "P009",
+    "patient_id": "PAT0609",
+    "procedure_code": "PROC-002",
+    "claim_amount": 33095.89,
+    "claim_date": "2026-07-26",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00347",
+    "provider_id": "P009",
+    "patient_id": "PAT0232",
+    "procedure_code": "PROC-005",
+    "claim_amount": 28880.4,
+    "claim_date": "2026-07-09",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00348",
+    "provider_id": "P009",
+    "patient_id": "PAT0548",
+    "procedure_code": "PROC-001",
+    "claim_amount": 32401.86,
+    "claim_date": "2026-07-21",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00349",
+    "provider_id": "P009",
+    "patient_id": "PAT0192",
+    "procedure_code": "PROC-004",
+    "claim_amount": 29649,
+    "claim_date": "2026-07-09",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00350",
+    "provider_id": "P009",
+    "patient_id": "PAT0408",
+    "procedure_code": "PROC-002",
+    "claim_amount": 29408.26,
+    "claim_date": "2026-08-16",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00351",
+    "provider_id": "P009",
+    "patient_id": "PAT0010",
+    "procedure_code": "PROC-001",
+    "claim_amount": 32911.62,
+    "claim_date": "2026-07-17",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00352",
+    "provider_id": "P009",
+    "patient_id": "PAT0390",
+    "procedure_code": "PROC-001",
+    "claim_amount": 32757.49,
+    "claim_date": "2026-08-01",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00353",
+    "provider_id": "P009",
+    "patient_id": "PAT0483",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33604.55,
+    "claim_date": "2026-07-17",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00354",
+    "provider_id": "P009",
+    "patient_id": "PAT0130",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33819.77,
+    "claim_date": "2026-07-09",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00355",
+    "provider_id": "P009",
+    "patient_id": "PAT0291",
+    "procedure_code": "PROC-001",
+    "claim_amount": 33266.72,
+    "claim_date": "2026-08-27",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00356",
+    "provider_id": "P009",
+    "patient_id": "PAT0767",
+    "procedure_code": "PROC-005",
+    "claim_amount": 30999.57,
+    "claim_date": "2026-07-18",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00357",
+    "provider_id": "P009",
+    "patient_id": "PAT0348",
+    "procedure_code": "PROC-004",
+    "claim_amount": 28671.62,
+    "claim_date": "2026-07-20",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00358",
+    "provider_id": "P009",
+    "patient_id": "PAT0442",
+    "procedure_code": "PROC-001",
+    "claim_amount": 31454.29,
+    "claim_date": "2026-07-02",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00359",
+    "provider_id": "P009",
+    "patient_id": "PAT0609",
+    "procedure_code": "PROC-004",
+    "claim_amount": 29683.77,
+    "claim_date": "2026-07-31",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00360",
+    "provider_id": "P009",
+    "patient_id": "PAT0744",
+    "procedure_code": "PROC-003",
+    "claim_amount": 28879.74,
+    "claim_date": "2026-07-19",
+    "specialty": "Neurology",
+    "referred_to": "P010"
+  },
+  {
+    "claim_id": "C00361",
+    "provider_id": "P010",
+    "patient_id": "PAT0737",
+    "procedure_code": "PROC-001",
+    "claim_amount": 28197.29,
+    "claim_date": "2026-08-07",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00362",
+    "provider_id": "P010",
+    "patient_id": "PAT0451",
+    "procedure_code": "PROC-005",
+    "claim_amount": 31569.81,
+    "claim_date": "2026-08-07",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00363",
+    "provider_id": "P010",
+    "patient_id": "PAT0596",
+    "procedure_code": "PROC-004",
+    "claim_amount": 32731.6,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00364",
+    "provider_id": "P010",
+    "patient_id": "PAT0800",
+    "procedure_code": "PROC-003",
+    "claim_amount": 30714.09,
+    "claim_date": "2026-08-06",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00365",
+    "provider_id": "P010",
+    "patient_id": "PAT0634",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33516.36,
+    "claim_date": "2026-07-16",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00366",
+    "provider_id": "P010",
+    "patient_id": "PAT0430",
+    "procedure_code": "PROC-002",
+    "claim_amount": 30370.44,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00367",
+    "provider_id": "P010",
+    "patient_id": "PAT0787",
+    "procedure_code": "PROC-004",
+    "claim_amount": 32172.22,
+    "claim_date": "2026-07-05",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00368",
+    "provider_id": "P010",
+    "patient_id": "PAT0327",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31702.26,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00369",
+    "provider_id": "P010",
+    "patient_id": "PAT0365",
+    "procedure_code": "PROC-001",
+    "claim_amount": 28776.22,
+    "claim_date": "2026-07-20",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00370",
+    "provider_id": "P010",
+    "patient_id": "PAT0034",
+    "procedure_code": "PROC-005",
+    "claim_amount": 31095.92,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00371",
+    "provider_id": "P010",
+    "patient_id": "PAT0656",
+    "procedure_code": "PROC-003",
+    "claim_amount": 31160.97,
+    "claim_date": "2026-07-24",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00372",
+    "provider_id": "P010",
+    "patient_id": "PAT0164",
+    "procedure_code": "PROC-004",
+    "claim_amount": 30577.34,
+    "claim_date": "2026-08-03",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00373",
+    "provider_id": "P010",
+    "patient_id": "PAT0691",
+    "procedure_code": "PROC-003",
+    "claim_amount": 32094.37,
+    "claim_date": "2026-08-29",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00374",
+    "provider_id": "P010",
+    "patient_id": "PAT0501",
+    "procedure_code": "PROC-005",
+    "claim_amount": 28669.78,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00375",
+    "provider_id": "P010",
+    "patient_id": "PAT0546",
+    "procedure_code": "PROC-001",
+    "claim_amount": 28053.6,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00376",
+    "provider_id": "P010",
+    "patient_id": "PAT0055",
+    "procedure_code": "PROC-001",
+    "claim_amount": 30986.58,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00377",
+    "provider_id": "P010",
+    "patient_id": "PAT0756",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31631.32,
+    "claim_date": "2026-08-26",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00378",
+    "provider_id": "P010",
+    "patient_id": "PAT0679",
+    "procedure_code": "PROC-003",
+    "claim_amount": 31161.25,
+    "claim_date": "2026-07-12",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00379",
+    "provider_id": "P010",
+    "patient_id": "PAT0617",
+    "procedure_code": "PROC-005",
+    "claim_amount": 28209.16,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00380",
+    "provider_id": "P010",
+    "patient_id": "PAT0216",
+    "procedure_code": "PROC-003",
+    "claim_amount": 30464.9,
+    "claim_date": "2026-08-05",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00381",
+    "provider_id": "P010",
+    "patient_id": "PAT0288",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33589.18,
+    "claim_date": "2026-07-15",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00382",
+    "provider_id": "P010",
+    "patient_id": "PAT0692",
+    "procedure_code": "PROC-003",
+    "claim_amount": 32360.66,
+    "claim_date": "2026-08-26",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00383",
+    "provider_id": "P010",
+    "patient_id": "PAT0237",
+    "procedure_code": "PROC-004",
+    "claim_amount": 28420.9,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00384",
+    "provider_id": "P010",
+    "patient_id": "PAT0057",
+    "procedure_code": "PROC-005",
+    "claim_amount": 31214.22,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00385",
+    "provider_id": "P010",
+    "patient_id": "PAT0016",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31701.75,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00386",
+    "provider_id": "P010",
+    "patient_id": "PAT0361",
+    "procedure_code": "PROC-001",
+    "claim_amount": 33573.29,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00387",
+    "provider_id": "P010",
+    "patient_id": "PAT0091",
+    "procedure_code": "PROC-005",
+    "claim_amount": 33865.58,
+    "claim_date": "2026-07-28",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00388",
+    "provider_id": "P010",
+    "patient_id": "PAT0291",
+    "procedure_code": "PROC-003",
+    "claim_amount": 31195.05,
+    "claim_date": "2026-08-22",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00389",
+    "provider_id": "P010",
+    "patient_id": "PAT0149",
+    "procedure_code": "PROC-002",
+    "claim_amount": 29198.48,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00390",
+    "provider_id": "P010",
+    "patient_id": "PAT0251",
+    "procedure_code": "PROC-001",
+    "claim_amount": 31735.93,
+    "claim_date": "2026-08-28",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00391",
+    "provider_id": "P010",
+    "patient_id": "PAT0204",
+    "procedure_code": "PROC-003",
+    "claim_amount": 33696.51,
+    "claim_date": "2026-08-23",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00392",
+    "provider_id": "P010",
+    "patient_id": "PAT0228",
+    "procedure_code": "PROC-004",
+    "claim_amount": 32485.38,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00393",
+    "provider_id": "P010",
+    "patient_id": "PAT0003",
+    "procedure_code": "PROC-003",
+    "claim_amount": 31767.67,
+    "claim_date": "2026-08-22",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00394",
+    "provider_id": "P010",
+    "patient_id": "PAT0087",
+    "procedure_code": "PROC-004",
+    "claim_amount": 31831.7,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00395",
+    "provider_id": "P010",
+    "patient_id": "PAT0570",
+    "procedure_code": "PROC-002",
+    "claim_amount": 31234.15,
+    "claim_date": "2026-07-25",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00396",
+    "provider_id": "P010",
+    "patient_id": "PAT0417",
+    "procedure_code": "PROC-005",
+    "claim_amount": 30081.03,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00397",
+    "provider_id": "P010",
+    "patient_id": "PAT0118",
+    "procedure_code": "PROC-004",
+    "claim_amount": 28630.87,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00398",
+    "provider_id": "P010",
+    "patient_id": "PAT0104",
+    "procedure_code": "PROC-004",
+    "claim_amount": 30115.58,
+    "claim_date": "2026-07-06",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00399",
+    "provider_id": "P010",
+    "patient_id": "PAT0539",
+    "procedure_code": "PROC-003",
+    "claim_amount": 33621.38,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00400",
+    "provider_id": "P010",
+    "patient_id": "PAT0218",
+    "procedure_code": "PROC-003",
+    "claim_amount": 33036.76,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": "P007"
+  },
+  {
+    "claim_id": "C00401",
+    "provider_id": "P011",
+    "patient_id": "PAT0637",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3749.17,
+    "claim_date": "2026-07-29",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00402",
+    "provider_id": "P011",
+    "patient_id": "PAT0194",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2882.84,
+    "claim_date": "2026-07-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00403",
+    "provider_id": "P011",
+    "patient_id": "PAT0587",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4064.3,
+    "claim_date": "2026-08-07",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00404",
+    "provider_id": "P011",
+    "patient_id": "PAT0565",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2739.66,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00405",
+    "provider_id": "P011",
+    "patient_id": "PAT0560",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3824.73,
+    "claim_date": "2026-07-25",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00406",
+    "provider_id": "P011",
+    "patient_id": "PAT0757",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4119.97,
+    "claim_date": "2026-07-29",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00407",
+    "provider_id": "P011",
+    "patient_id": "PAT0082",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2432.66,
+    "claim_date": "2026-07-09",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00408",
+    "provider_id": "P011",
+    "patient_id": "PAT0480",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4133.91,
+    "claim_date": "2026-08-08",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00409",
+    "provider_id": "P011",
+    "patient_id": "PAT0138",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2245.47,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00410",
+    "provider_id": "P011",
+    "patient_id": "PAT0524",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2818.76,
+    "claim_date": "2026-08-13",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00411",
+    "provider_id": "P011",
+    "patient_id": "PAT0455",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2889.35,
+    "claim_date": "2026-08-29",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00412",
+    "provider_id": "P011",
+    "patient_id": "PAT0751",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2265.94,
+    "claim_date": "2026-07-06",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00413",
+    "provider_id": "P011",
+    "patient_id": "PAT0172",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3240.88,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00414",
+    "provider_id": "P011",
+    "patient_id": "PAT0201",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2607.91,
+    "claim_date": "2026-08-20",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00415",
+    "provider_id": "P011",
+    "patient_id": "PAT0487",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2324.61,
+    "claim_date": "2026-07-12",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00416",
+    "provider_id": "P011",
+    "patient_id": "PAT0562",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2311.21,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00417",
+    "provider_id": "P011",
+    "patient_id": "PAT0755",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3862.57,
+    "claim_date": "2026-07-27",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00418",
+    "provider_id": "P011",
+    "patient_id": "PAT0719",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2958.99,
+    "claim_date": "2026-07-13",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00419",
+    "provider_id": "P011",
+    "patient_id": "PAT0301",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3172.95,
+    "claim_date": "2026-07-11",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00420",
+    "provider_id": "P011",
+    "patient_id": "PAT0385",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3618.86,
+    "claim_date": "2026-07-24",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00421",
+    "provider_id": "P011",
+    "patient_id": "PAT0478",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2984.7,
+    "claim_date": "2026-07-14",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00422",
+    "provider_id": "P011",
+    "patient_id": "PAT0425",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3599.34,
+    "claim_date": "2026-07-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00423",
+    "provider_id": "P011",
+    "patient_id": "PAT0091",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2215.03,
+    "claim_date": "2026-07-19",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00424",
+    "provider_id": "P011",
+    "patient_id": "PAT0376",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3280.81,
+    "claim_date": "2026-08-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00425",
+    "provider_id": "P011",
+    "patient_id": "PAT0339",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2793.14,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00426",
+    "provider_id": "P011",
+    "patient_id": "PAT0423",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3478.25,
+    "claim_date": "2026-08-17",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00427",
+    "provider_id": "P011",
+    "patient_id": "PAT0424",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3345.6,
+    "claim_date": "2026-07-02",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00428",
+    "provider_id": "P011",
+    "patient_id": "PAT0005",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3390.08,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00429",
+    "provider_id": "P011",
+    "patient_id": "PAT0635",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4160.55,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00430",
+    "provider_id": "P011",
+    "patient_id": "PAT0713",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3512.41,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00431",
+    "provider_id": "P011",
+    "patient_id": "PAT0171",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3953.69,
+    "claim_date": "2026-07-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00432",
+    "provider_id": "P011",
+    "patient_id": "PAT0533",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3903.27,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00433",
+    "provider_id": "P011",
+    "patient_id": "PAT0319",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3283.82,
+    "claim_date": "2026-08-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00434",
+    "provider_id": "P011",
+    "patient_id": "PAT0071",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3522.9,
+    "claim_date": "2026-07-02",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00435",
+    "provider_id": "P011",
+    "patient_id": "PAT0408",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3955.79,
+    "claim_date": "2026-08-17",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00436",
+    "provider_id": "P011",
+    "patient_id": "PAT0673",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2636.47,
+    "claim_date": "2026-08-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00437",
+    "provider_id": "P011",
+    "patient_id": "PAT0438",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3844.69,
+    "claim_date": "2026-07-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00438",
+    "provider_id": "P011",
+    "patient_id": "PAT0775",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2931.39,
+    "claim_date": "2026-07-17",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00439",
+    "provider_id": "P011",
+    "patient_id": "PAT0210",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2846.24,
+    "claim_date": "2026-08-12",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00440",
+    "provider_id": "P011",
+    "patient_id": "PAT0235",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3557.32,
+    "claim_date": "2026-07-16",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00441",
+    "provider_id": "P012",
+    "patient_id": "PAT0550",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4146.24,
+    "claim_date": "2026-07-14",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00442",
+    "provider_id": "P012",
+    "patient_id": "PAT0553",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2427.56,
+    "claim_date": "2026-07-18",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00443",
+    "provider_id": "P012",
+    "patient_id": "PAT0433",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3193.09,
+    "claim_date": "2026-07-27",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00444",
+    "provider_id": "P012",
+    "patient_id": "PAT0659",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3907.82,
+    "claim_date": "2026-08-08",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00445",
+    "provider_id": "P012",
+    "patient_id": "PAT0594",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2203.63,
+    "claim_date": "2026-08-01",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00446",
+    "provider_id": "P012",
+    "patient_id": "PAT0076",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3373.34,
+    "claim_date": "2026-07-11",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00447",
+    "provider_id": "P012",
+    "patient_id": "PAT0561",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2885.25,
+    "claim_date": "2026-07-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00448",
+    "provider_id": "P012",
+    "patient_id": "PAT0387",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3608.04,
+    "claim_date": "2026-07-30",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00449",
+    "provider_id": "P012",
+    "patient_id": "PAT0624",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3740.51,
+    "claim_date": "2026-08-10",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00450",
+    "provider_id": "P012",
+    "patient_id": "PAT0518",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2768.77,
+    "claim_date": "2026-08-10",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00451",
+    "provider_id": "P012",
+    "patient_id": "PAT0562",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2776.3,
+    "claim_date": "2026-08-27",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00452",
+    "provider_id": "P012",
+    "patient_id": "PAT0674",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4138.47,
+    "claim_date": "2026-08-28",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00453",
+    "provider_id": "P012",
+    "patient_id": "PAT0287",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4136.53,
+    "claim_date": "2026-08-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00454",
+    "provider_id": "P012",
+    "patient_id": "PAT0081",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3443.43,
+    "claim_date": "2026-07-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00455",
+    "provider_id": "P012",
+    "patient_id": "PAT0625",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3098.66,
+    "claim_date": "2026-08-21",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00456",
+    "provider_id": "P012",
+    "patient_id": "PAT0786",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2303.81,
+    "claim_date": "2026-07-24",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00457",
+    "provider_id": "P012",
+    "patient_id": "PAT0071",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2653.14,
+    "claim_date": "2026-08-26",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00458",
+    "provider_id": "P012",
+    "patient_id": "PAT0447",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2960.35,
+    "claim_date": "2026-08-08",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00459",
+    "provider_id": "P012",
+    "patient_id": "PAT0415",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2621.67,
+    "claim_date": "2026-08-02",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00460",
+    "provider_id": "P012",
+    "patient_id": "PAT0064",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2999.55,
+    "claim_date": "2026-07-01",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00461",
+    "provider_id": "P012",
+    "patient_id": "PAT0290",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3865.39,
+    "claim_date": "2026-07-09",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00462",
+    "provider_id": "P012",
+    "patient_id": "PAT0634",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3056.28,
+    "claim_date": "2026-08-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00463",
+    "provider_id": "P012",
+    "patient_id": "PAT0569",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2358.47,
+    "claim_date": "2026-08-11",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00464",
+    "provider_id": "P012",
+    "patient_id": "PAT0516",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2615.93,
+    "claim_date": "2026-07-17",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00465",
+    "provider_id": "P012",
+    "patient_id": "PAT0347",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3388.32,
+    "claim_date": "2026-07-05",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00466",
+    "provider_id": "P012",
+    "patient_id": "PAT0117",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3994.87,
+    "claim_date": "2026-07-11",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00467",
+    "provider_id": "P012",
+    "patient_id": "PAT0005",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2842.59,
+    "claim_date": "2026-07-03",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00468",
+    "provider_id": "P012",
+    "patient_id": "PAT0344",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2666.44,
+    "claim_date": "2026-08-16",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00469",
+    "provider_id": "P012",
+    "patient_id": "PAT0502",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4081.65,
+    "claim_date": "2026-07-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00470",
+    "provider_id": "P012",
+    "patient_id": "PAT0538",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3611.7,
+    "claim_date": "2026-07-16",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00471",
+    "provider_id": "P012",
+    "patient_id": "PAT0385",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2809.59,
+    "claim_date": "2026-08-10",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00472",
+    "provider_id": "P012",
+    "patient_id": "PAT0416",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4101.76,
+    "claim_date": "2026-07-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00473",
+    "provider_id": "P012",
+    "patient_id": "PAT0258",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2506.29,
+    "claim_date": "2026-08-22",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00474",
+    "provider_id": "P012",
+    "patient_id": "PAT0184",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2799.02,
+    "claim_date": "2026-08-20",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00475",
+    "provider_id": "P012",
+    "patient_id": "PAT0200",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2736.42,
+    "claim_date": "2026-08-16",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00476",
+    "provider_id": "P012",
+    "patient_id": "PAT0786",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2244.5,
+    "claim_date": "2026-08-26",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00477",
+    "provider_id": "P012",
+    "patient_id": "PAT0515",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2648.93,
+    "claim_date": "2026-08-05",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00478",
+    "provider_id": "P012",
+    "patient_id": "PAT0286",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3220.78,
+    "claim_date": "2026-07-10",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00479",
+    "provider_id": "P012",
+    "patient_id": "PAT0445",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2406.43,
+    "claim_date": "2026-08-11",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00480",
+    "provider_id": "P012",
+    "patient_id": "PAT0278",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3017.51,
+    "claim_date": "2026-08-25",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00481",
+    "provider_id": "P013",
+    "patient_id": "PAT0262",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3652.79,
+    "claim_date": "2026-07-31",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00482",
+    "provider_id": "P013",
+    "patient_id": "PAT0033",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4050.03,
+    "claim_date": "2026-08-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00483",
+    "provider_id": "P013",
+    "patient_id": "PAT0614",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2701.51,
+    "claim_date": "2026-07-28",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00484",
+    "provider_id": "P013",
+    "patient_id": "PAT0158",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2549.21,
+    "claim_date": "2026-08-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00485",
+    "provider_id": "P013",
+    "patient_id": "PAT0692",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3434.73,
+    "claim_date": "2026-07-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00486",
+    "provider_id": "P013",
+    "patient_id": "PAT0631",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3131.46,
+    "claim_date": "2026-08-01",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00487",
+    "provider_id": "P013",
+    "patient_id": "PAT0032",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3824.35,
+    "claim_date": "2026-07-14",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00488",
+    "provider_id": "P013",
+    "patient_id": "PAT0774",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2754.67,
+    "claim_date": "2026-07-09",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00489",
+    "provider_id": "P013",
+    "patient_id": "PAT0382",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3892.7,
+    "claim_date": "2026-08-07",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00490",
+    "provider_id": "P013",
+    "patient_id": "PAT0484",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2602.76,
+    "claim_date": "2026-08-03",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00491",
+    "provider_id": "P013",
+    "patient_id": "PAT0173",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3608.9,
+    "claim_date": "2026-08-13",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00492",
+    "provider_id": "P013",
+    "patient_id": "PAT0209",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3745.07,
+    "claim_date": "2026-08-28",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00493",
+    "provider_id": "P013",
+    "patient_id": "PAT0210",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3273.25,
+    "claim_date": "2026-07-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00494",
+    "provider_id": "P013",
+    "patient_id": "PAT0669",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2385.85,
+    "claim_date": "2026-08-18",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00495",
+    "provider_id": "P013",
+    "patient_id": "PAT0604",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3042.8,
+    "claim_date": "2026-07-28",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00496",
+    "provider_id": "P013",
+    "patient_id": "PAT0414",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3743.21,
+    "claim_date": "2026-07-20",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00497",
+    "provider_id": "P013",
+    "patient_id": "PAT0033",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3548.69,
+    "claim_date": "2026-08-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00498",
+    "provider_id": "P013",
+    "patient_id": "PAT0025",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2816.17,
+    "claim_date": "2026-07-02",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00499",
+    "provider_id": "P013",
+    "patient_id": "PAT0573",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2455.51,
+    "claim_date": "2026-07-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00500",
+    "provider_id": "P013",
+    "patient_id": "PAT0692",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3826.4,
+    "claim_date": "2026-07-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00501",
+    "provider_id": "P013",
+    "patient_id": "PAT0135",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3305.16,
+    "claim_date": "2026-07-14",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00502",
+    "provider_id": "P013",
+    "patient_id": "PAT0388",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3379.38,
+    "claim_date": "2026-08-26",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00503",
+    "provider_id": "P013",
+    "patient_id": "PAT0533",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2348.83,
+    "claim_date": "2026-08-09",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00504",
+    "provider_id": "P013",
+    "patient_id": "PAT0220",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2465.44,
+    "claim_date": "2026-08-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00505",
+    "provider_id": "P013",
+    "patient_id": "PAT0435",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3497.6,
+    "claim_date": "2026-07-24",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00506",
+    "provider_id": "P013",
+    "patient_id": "PAT0543",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2577.8,
+    "claim_date": "2026-08-20",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00507",
+    "provider_id": "P013",
+    "patient_id": "PAT0284",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2368.18,
+    "claim_date": "2026-07-17",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00508",
+    "provider_id": "P013",
+    "patient_id": "PAT0360",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2649.78,
+    "claim_date": "2026-08-15",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00509",
+    "provider_id": "P013",
+    "patient_id": "PAT0685",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2557.24,
+    "claim_date": "2026-07-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00510",
+    "provider_id": "P013",
+    "patient_id": "PAT0608",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2497.71,
+    "claim_date": "2026-08-18",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00511",
+    "provider_id": "P013",
+    "patient_id": "PAT0011",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2803.3,
+    "claim_date": "2026-08-21",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00512",
+    "provider_id": "P013",
+    "patient_id": "PAT0258",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3916.65,
+    "claim_date": "2026-08-22",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00513",
+    "provider_id": "P013",
+    "patient_id": "PAT0071",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3397.36,
+    "claim_date": "2026-08-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00514",
+    "provider_id": "P013",
+    "patient_id": "PAT0511",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2617.81,
+    "claim_date": "2026-07-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00515",
+    "provider_id": "P013",
+    "patient_id": "PAT0616",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2425.91,
+    "claim_date": "2026-07-26",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00516",
+    "provider_id": "P013",
+    "patient_id": "PAT0012",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2506.77,
+    "claim_date": "2026-08-27",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00517",
+    "provider_id": "P013",
+    "patient_id": "PAT0676",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2235.55,
+    "claim_date": "2026-08-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00518",
+    "provider_id": "P013",
+    "patient_id": "PAT0748",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3193.38,
+    "claim_date": "2026-08-21",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00519",
+    "provider_id": "P013",
+    "patient_id": "PAT0363",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3939.44,
+    "claim_date": "2026-07-22",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00520",
+    "provider_id": "P013",
+    "patient_id": "PAT0300",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3350.13,
+    "claim_date": "2026-07-10",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00521",
+    "provider_id": "P014",
+    "patient_id": "PAT0480",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3052.24,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00522",
+    "provider_id": "P014",
+    "patient_id": "PAT0294",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3737.82,
+    "claim_date": "2026-07-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00523",
+    "provider_id": "P014",
+    "patient_id": "PAT0311",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2633.78,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00524",
+    "provider_id": "P014",
+    "patient_id": "PAT0021",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3265.46,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00525",
+    "provider_id": "P014",
+    "patient_id": "PAT0242",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2803.35,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00526",
+    "provider_id": "P014",
+    "patient_id": "PAT0630",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2416.32,
+    "claim_date": "2026-08-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00527",
+    "provider_id": "P014",
+    "patient_id": "PAT0700",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2936.61,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00528",
+    "provider_id": "P014",
+    "patient_id": "PAT0132",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2930.61,
+    "claim_date": "2026-08-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00529",
+    "provider_id": "P014",
+    "patient_id": "PAT0552",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2553.95,
+    "claim_date": "2026-07-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00530",
+    "provider_id": "P014",
+    "patient_id": "PAT0462",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4036.27,
+    "claim_date": "2026-07-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00531",
+    "provider_id": "P014",
+    "patient_id": "PAT0235",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2673.86,
+    "claim_date": "2026-07-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00532",
+    "provider_id": "P014",
+    "patient_id": "PAT0505",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3354.63,
+    "claim_date": "2026-08-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00533",
+    "provider_id": "P014",
+    "patient_id": "PAT0052",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4144.27,
+    "claim_date": "2026-08-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00534",
+    "provider_id": "P014",
+    "patient_id": "PAT0453",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3545.33,
+    "claim_date": "2026-07-30",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00535",
+    "provider_id": "P014",
+    "patient_id": "PAT0285",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2752.08,
+    "claim_date": "2026-07-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00536",
+    "provider_id": "P014",
+    "patient_id": "PAT0760",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3536.56,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00537",
+    "provider_id": "P014",
+    "patient_id": "PAT0182",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3680.58,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00538",
+    "provider_id": "P014",
+    "patient_id": "PAT0559",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3385.59,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00539",
+    "provider_id": "P014",
+    "patient_id": "PAT0681",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3609.6,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00540",
+    "provider_id": "P014",
+    "patient_id": "PAT0131",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3303.23,
+    "claim_date": "2026-08-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00541",
+    "provider_id": "P014",
+    "patient_id": "PAT0598",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3510.64,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00542",
+    "provider_id": "P014",
+    "patient_id": "PAT0674",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2487.84,
+    "claim_date": "2026-08-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00543",
+    "provider_id": "P014",
+    "patient_id": "PAT0568",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3046.17,
+    "claim_date": "2026-08-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00544",
+    "provider_id": "P014",
+    "patient_id": "PAT0743",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3201.57,
+    "claim_date": "2026-08-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00545",
+    "provider_id": "P014",
+    "patient_id": "PAT0582",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2673.09,
+    "claim_date": "2026-08-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00546",
+    "provider_id": "P014",
+    "patient_id": "PAT0457",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2862.05,
+    "claim_date": "2026-07-31",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00547",
+    "provider_id": "P014",
+    "patient_id": "PAT0701",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3843.79,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00548",
+    "provider_id": "P014",
+    "patient_id": "PAT0328",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2739.91,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00549",
+    "provider_id": "P014",
+    "patient_id": "PAT0350",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2280.97,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00550",
+    "provider_id": "P014",
+    "patient_id": "PAT0342",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3034.52,
+    "claim_date": "2026-08-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00551",
+    "provider_id": "P014",
+    "patient_id": "PAT0304",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3563.82,
+    "claim_date": "2026-08-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00552",
+    "provider_id": "P014",
+    "patient_id": "PAT0751",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3076.69,
+    "claim_date": "2026-07-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00553",
+    "provider_id": "P014",
+    "patient_id": "PAT0694",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2659.94,
+    "claim_date": "2026-07-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00554",
+    "provider_id": "P014",
+    "patient_id": "PAT0758",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2288.67,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00555",
+    "provider_id": "P014",
+    "patient_id": "PAT0724",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2992.06,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00556",
+    "provider_id": "P014",
+    "patient_id": "PAT0555",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3841.65,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00557",
+    "provider_id": "P014",
+    "patient_id": "PAT0487",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3401.97,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00558",
+    "provider_id": "P014",
+    "patient_id": "PAT0232",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2563.78,
+    "claim_date": "2026-07-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00559",
+    "provider_id": "P014",
+    "patient_id": "PAT0711",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2527.02,
+    "claim_date": "2026-07-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00560",
+    "provider_id": "P014",
+    "patient_id": "PAT0685",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2323.39,
+    "claim_date": "2026-08-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00561",
+    "provider_id": "P015",
+    "patient_id": "PAT0133",
+    "procedure_code": "PROC-003",
+    "claim_amount": 42286.76,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00562",
+    "provider_id": "P015",
+    "patient_id": "PAT0187",
+    "procedure_code": "PROC-004",
+    "claim_amount": 44556.69,
+    "claim_date": "2026-07-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00563",
+    "provider_id": "P015",
+    "patient_id": "PAT0684",
+    "procedure_code": "PROC-003",
+    "claim_amount": 49925.42,
+    "claim_date": "2026-07-20",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00564",
+    "provider_id": "P015",
+    "patient_id": "PAT0317",
+    "procedure_code": "PROC-004",
+    "claim_amount": 43159.57,
+    "claim_date": "2026-07-07",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00565",
+    "provider_id": "P015",
+    "patient_id": "PAT0061",
+    "procedure_code": "PROC-003",
+    "claim_amount": 49396.45,
+    "claim_date": "2026-07-01",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00566",
+    "provider_id": "P015",
+    "patient_id": "PAT0527",
+    "procedure_code": "PROC-003",
+    "claim_amount": 48965.52,
+    "claim_date": "2026-08-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00567",
+    "provider_id": "P015",
+    "patient_id": "PAT0231",
+    "procedure_code": "PROC-004",
+    "claim_amount": 48078.84,
+    "claim_date": "2026-08-23",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00568",
+    "provider_id": "P015",
+    "patient_id": "PAT0061",
+    "procedure_code": "PROC-002",
+    "claim_amount": 44743.42,
+    "claim_date": "2026-08-04",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00569",
+    "provider_id": "P015",
+    "patient_id": "PAT0218",
+    "procedure_code": "PROC-001",
+    "claim_amount": 44116.01,
+    "claim_date": "2026-07-29",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00570",
+    "provider_id": "P015",
+    "patient_id": "PAT0710",
+    "procedure_code": "PROC-003",
+    "claim_amount": 48754.3,
+    "claim_date": "2026-08-25",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00571",
+    "provider_id": "P015",
+    "patient_id": "PAT0624",
+    "procedure_code": "PROC-005",
+    "claim_amount": 49747.29,
+    "claim_date": "2026-07-06",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00572",
+    "provider_id": "P015",
+    "patient_id": "PAT0037",
+    "procedure_code": "PROC-001",
+    "claim_amount": 46111.87,
+    "claim_date": "2026-08-01",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00573",
+    "provider_id": "P015",
+    "patient_id": "PAT0739",
+    "procedure_code": "PROC-002",
+    "claim_amount": 48375.7,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00574",
+    "provider_id": "P015",
+    "patient_id": "PAT0301",
+    "procedure_code": "PROC-003",
+    "claim_amount": 46772.2,
+    "claim_date": "2026-08-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00575",
+    "provider_id": "P015",
+    "patient_id": "PAT0412",
+    "procedure_code": "PROC-002",
+    "claim_amount": 48835.46,
+    "claim_date": "2026-07-27",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00576",
+    "provider_id": "P015",
+    "patient_id": "PAT0479",
+    "procedure_code": "PROC-001",
+    "claim_amount": 42798.75,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00577",
+    "provider_id": "P015",
+    "patient_id": "PAT0649",
+    "procedure_code": "PROC-005",
+    "claim_amount": 49960.62,
+    "claim_date": "2026-07-17",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00578",
+    "provider_id": "P015",
+    "patient_id": "PAT0737",
+    "procedure_code": "PROC-005",
+    "claim_amount": 48244.03,
+    "claim_date": "2026-08-25",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00579",
+    "provider_id": "P015",
+    "patient_id": "PAT0595",
+    "procedure_code": "PROC-002",
+    "claim_amount": 46082.75,
+    "claim_date": "2026-07-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00580",
+    "provider_id": "P015",
+    "patient_id": "PAT0405",
+    "procedure_code": "PROC-004",
+    "claim_amount": 43912.45,
+    "claim_date": "2026-08-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00581",
+    "provider_id": "P015",
+    "patient_id": "PAT0259",
+    "procedure_code": "PROC-005",
+    "claim_amount": 42850.81,
+    "claim_date": "2026-07-27",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00582",
+    "provider_id": "P015",
+    "patient_id": "PAT0036",
+    "procedure_code": "PROC-002",
+    "claim_amount": 43026.48,
+    "claim_date": "2026-07-31",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00583",
+    "provider_id": "P015",
+    "patient_id": "PAT0286",
+    "procedure_code": "PROC-001",
+    "claim_amount": 42259.84,
+    "claim_date": "2026-08-23",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00584",
+    "provider_id": "P015",
+    "patient_id": "PAT0658",
+    "procedure_code": "PROC-004",
+    "claim_amount": 46872.16,
+    "claim_date": "2026-08-17",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00585",
+    "provider_id": "P015",
+    "patient_id": "PAT0287",
+    "procedure_code": "PROC-003",
+    "claim_amount": 46972.04,
+    "claim_date": "2026-08-07",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00586",
+    "provider_id": "P015",
+    "patient_id": "PAT0767",
+    "procedure_code": "PROC-002",
+    "claim_amount": 42901.54,
+    "claim_date": "2026-07-02",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00587",
+    "provider_id": "P015",
+    "patient_id": "PAT0160",
+    "procedure_code": "PROC-002",
+    "claim_amount": 46648.76,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00588",
+    "provider_id": "P015",
+    "patient_id": "PAT0700",
+    "procedure_code": "PROC-002",
+    "claim_amount": 43170.42,
+    "claim_date": "2026-08-24",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00589",
+    "provider_id": "P015",
+    "patient_id": "PAT0190",
+    "procedure_code": "PROC-005",
+    "claim_amount": 44379.15,
+    "claim_date": "2026-07-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00590",
+    "provider_id": "P015",
+    "patient_id": "PAT0196",
+    "procedure_code": "PROC-003",
+    "claim_amount": 45024.14,
+    "claim_date": "2026-07-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00591",
+    "provider_id": "P015",
+    "patient_id": "PAT0179",
+    "procedure_code": "PROC-004",
+    "claim_amount": 47104.07,
+    "claim_date": "2026-07-01",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00592",
+    "provider_id": "P015",
+    "patient_id": "PAT0593",
+    "procedure_code": "PROC-004",
+    "claim_amount": 48205.27,
+    "claim_date": "2026-07-30",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00593",
+    "provider_id": "P015",
+    "patient_id": "PAT0362",
+    "procedure_code": "PROC-003",
+    "claim_amount": 44363.57,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00594",
+    "provider_id": "P015",
+    "patient_id": "PAT0321",
+    "procedure_code": "PROC-004",
+    "claim_amount": 49477.36,
+    "claim_date": "2026-08-29",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00595",
+    "provider_id": "P015",
+    "patient_id": "PAT0584",
+    "procedure_code": "PROC-001",
+    "claim_amount": 45394.7,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00596",
+    "provider_id": "P015",
+    "patient_id": "PAT0201",
+    "procedure_code": "PROC-003",
+    "claim_amount": 45258.83,
+    "claim_date": "2026-07-24",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00597",
+    "provider_id": "P015",
+    "patient_id": "PAT0238",
+    "procedure_code": "PROC-003",
+    "claim_amount": 48708.27,
+    "claim_date": "2026-07-14",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00598",
+    "provider_id": "P015",
+    "patient_id": "PAT0241",
+    "procedure_code": "PROC-004",
+    "claim_amount": 43910.01,
+    "claim_date": "2026-08-11",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00599",
+    "provider_id": "P015",
+    "patient_id": "PAT0333",
+    "procedure_code": "PROC-003",
+    "claim_amount": 45763.43,
+    "claim_date": "2026-07-30",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00600",
+    "provider_id": "P015",
+    "patient_id": "PAT0265",
+    "procedure_code": "PROC-005",
+    "claim_amount": 42675.11,
+    "claim_date": "2026-07-20",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00601",
+    "provider_id": "P016",
+    "patient_id": "PAT0629",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4037.71,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00602",
+    "provider_id": "P016",
+    "patient_id": "PAT0366",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2632.12,
+    "claim_date": "2026-07-20",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00603",
+    "provider_id": "P016",
+    "patient_id": "PAT0658",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2211.18,
+    "claim_date": "2026-08-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00604",
+    "provider_id": "P016",
+    "patient_id": "PAT0722",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2778.68,
+    "claim_date": "2026-08-27",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00605",
+    "provider_id": "P016",
+    "patient_id": "PAT0363",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3267.11,
+    "claim_date": "2026-07-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00606",
+    "provider_id": "P016",
+    "patient_id": "PAT0090",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2751.84,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00607",
+    "provider_id": "P016",
+    "patient_id": "PAT0788",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3456.7,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00608",
+    "provider_id": "P016",
+    "patient_id": "PAT0795",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2320.57,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00609",
+    "provider_id": "P016",
+    "patient_id": "PAT0264",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3876.18,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00610",
+    "provider_id": "P016",
+    "patient_id": "PAT0678",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3519.96,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00611",
+    "provider_id": "P016",
+    "patient_id": "PAT0311",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2847.87,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00612",
+    "provider_id": "P016",
+    "patient_id": "PAT0001",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3183.27,
+    "claim_date": "2026-08-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00613",
+    "provider_id": "P016",
+    "patient_id": "PAT0533",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4024.53,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00614",
+    "provider_id": "P016",
+    "patient_id": "PAT0766",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3191.47,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00615",
+    "provider_id": "P016",
+    "patient_id": "PAT0420",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3829.13,
+    "claim_date": "2026-07-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00616",
+    "provider_id": "P016",
+    "patient_id": "PAT0261",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2963.86,
+    "claim_date": "2026-07-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00617",
+    "provider_id": "P016",
+    "patient_id": "PAT0501",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3994.1,
+    "claim_date": "2026-08-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00618",
+    "provider_id": "P016",
+    "patient_id": "PAT0224",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2874.26,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00619",
+    "provider_id": "P016",
+    "patient_id": "PAT0047",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3560.03,
+    "claim_date": "2026-08-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00620",
+    "provider_id": "P016",
+    "patient_id": "PAT0165",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3985.88,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00621",
+    "provider_id": "P016",
+    "patient_id": "PAT0338",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3791.73,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00622",
+    "provider_id": "P016",
+    "patient_id": "PAT0049",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2906.49,
+    "claim_date": "2026-07-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00623",
+    "provider_id": "P016",
+    "patient_id": "PAT0765",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3702.99,
+    "claim_date": "2026-07-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00624",
+    "provider_id": "P016",
+    "patient_id": "PAT0084",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2623.68,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00625",
+    "provider_id": "P016",
+    "patient_id": "PAT0276",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3043.34,
+    "claim_date": "2026-08-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00626",
+    "provider_id": "P016",
+    "patient_id": "PAT0458",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3092.17,
+    "claim_date": "2026-07-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00627",
+    "provider_id": "P016",
+    "patient_id": "PAT0496",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2744.45,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00628",
+    "provider_id": "P016",
+    "patient_id": "PAT0060",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2742.03,
+    "claim_date": "2026-08-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00629",
+    "provider_id": "P016",
+    "patient_id": "PAT0735",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2922.99,
+    "claim_date": "2026-08-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00630",
+    "provider_id": "P016",
+    "patient_id": "PAT0116",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2335.34,
+    "claim_date": "2026-07-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00631",
+    "provider_id": "P016",
+    "patient_id": "PAT0616",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3600.82,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00632",
+    "provider_id": "P016",
+    "patient_id": "PAT0505",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3690.7,
+    "claim_date": "2026-07-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00633",
+    "provider_id": "P016",
+    "patient_id": "PAT0268",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2532.4,
+    "claim_date": "2026-07-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00634",
+    "provider_id": "P016",
+    "patient_id": "PAT0326",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3760.49,
+    "claim_date": "2026-08-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00635",
+    "provider_id": "P016",
+    "patient_id": "PAT0211",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3294.24,
+    "claim_date": "2026-07-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00636",
+    "provider_id": "P016",
+    "patient_id": "PAT0295",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3594.44,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00637",
+    "provider_id": "P016",
+    "patient_id": "PAT0752",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2606.58,
+    "claim_date": "2026-08-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00638",
+    "provider_id": "P016",
+    "patient_id": "PAT0689",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2300.88,
+    "claim_date": "2026-08-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00639",
+    "provider_id": "P016",
+    "patient_id": "PAT0369",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3897.24,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00640",
+    "provider_id": "P016",
+    "patient_id": "PAT0391",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3262.24,
+    "claim_date": "2026-07-31",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00641",
+    "provider_id": "P017",
+    "patient_id": "PAT0441",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3120.77,
+    "claim_date": "2026-08-13",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00642",
+    "provider_id": "P017",
+    "patient_id": "PAT0475",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3520.13,
+    "claim_date": "2026-08-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00643",
+    "provider_id": "P017",
+    "patient_id": "PAT0724",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3395.06,
+    "claim_date": "2026-08-11",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00644",
+    "provider_id": "P017",
+    "patient_id": "PAT0771",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3309.76,
+    "claim_date": "2026-08-20",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00645",
+    "provider_id": "P017",
+    "patient_id": "PAT0456",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4048.6,
+    "claim_date": "2026-08-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00646",
+    "provider_id": "P017",
+    "patient_id": "PAT0701",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3484.09,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00647",
+    "provider_id": "P017",
+    "patient_id": "PAT0660",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2624.8,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00648",
+    "provider_id": "P017",
+    "patient_id": "PAT0263",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4197.93,
+    "claim_date": "2026-08-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00649",
+    "provider_id": "P017",
+    "patient_id": "PAT0052",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2434.27,
+    "claim_date": "2026-08-09",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00650",
+    "provider_id": "P017",
+    "patient_id": "PAT0579",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3330.24,
+    "claim_date": "2026-08-26",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00651",
+    "provider_id": "P017",
+    "patient_id": "PAT0244",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2393.46,
+    "claim_date": "2026-08-16",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00652",
+    "provider_id": "P017",
+    "patient_id": "PAT0292",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3588.75,
+    "claim_date": "2026-07-22",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00653",
+    "provider_id": "P017",
+    "patient_id": "PAT0037",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2544.02,
+    "claim_date": "2026-08-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00654",
+    "provider_id": "P017",
+    "patient_id": "PAT0701",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3032.28,
+    "claim_date": "2026-07-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00655",
+    "provider_id": "P017",
+    "patient_id": "PAT0154",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4007.48,
+    "claim_date": "2026-07-08",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00656",
+    "provider_id": "P017",
+    "patient_id": "PAT0058",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3043.71,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00657",
+    "provider_id": "P017",
+    "patient_id": "PAT0289",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2769.62,
+    "claim_date": "2026-08-16",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00658",
+    "provider_id": "P017",
+    "patient_id": "PAT0428",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3064.26,
+    "claim_date": "2026-08-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00659",
+    "provider_id": "P017",
+    "patient_id": "PAT0331",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3841.63,
+    "claim_date": "2026-07-27",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00660",
+    "provider_id": "P017",
+    "patient_id": "PAT0444",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2503.02,
+    "claim_date": "2026-07-26",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00661",
+    "provider_id": "P017",
+    "patient_id": "PAT0606",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2405.01,
+    "claim_date": "2026-08-19",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00662",
+    "provider_id": "P017",
+    "patient_id": "PAT0499",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3248.09,
+    "claim_date": "2026-08-07",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00663",
+    "provider_id": "P017",
+    "patient_id": "PAT0227",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2784.13,
+    "claim_date": "2026-08-15",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00664",
+    "provider_id": "P017",
+    "patient_id": "PAT0460",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3677.25,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00665",
+    "provider_id": "P017",
+    "patient_id": "PAT0409",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3644.43,
+    "claim_date": "2026-07-17",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00666",
+    "provider_id": "P017",
+    "patient_id": "PAT0397",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2985.13,
+    "claim_date": "2026-08-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00667",
+    "provider_id": "P017",
+    "patient_id": "PAT0011",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2331.52,
+    "claim_date": "2026-07-15",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00668",
+    "provider_id": "P017",
+    "patient_id": "PAT0550",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3571.58,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00669",
+    "provider_id": "P017",
+    "patient_id": "PAT0292",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3820.91,
+    "claim_date": "2026-07-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00670",
+    "provider_id": "P017",
+    "patient_id": "PAT0198",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3674.55,
+    "claim_date": "2026-07-23",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00671",
+    "provider_id": "P017",
+    "patient_id": "PAT0216",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3286.11,
+    "claim_date": "2026-07-06",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00672",
+    "provider_id": "P017",
+    "patient_id": "PAT0417",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3123.91,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00673",
+    "provider_id": "P017",
+    "patient_id": "PAT0722",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3878.13,
+    "claim_date": "2026-07-09",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00674",
+    "provider_id": "P017",
+    "patient_id": "PAT0672",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3340.68,
+    "claim_date": "2026-08-12",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00675",
+    "provider_id": "P017",
+    "patient_id": "PAT0131",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2350.7,
+    "claim_date": "2026-07-24",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00676",
+    "provider_id": "P017",
+    "patient_id": "PAT0733",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3866.39,
+    "claim_date": "2026-08-02",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00677",
+    "provider_id": "P017",
+    "patient_id": "PAT0707",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3013.97,
+    "claim_date": "2026-07-13",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00678",
+    "provider_id": "P017",
+    "patient_id": "PAT0750",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3323.68,
+    "claim_date": "2026-08-20",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00679",
+    "provider_id": "P017",
+    "patient_id": "PAT0190",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3516.91,
+    "claim_date": "2026-08-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00680",
+    "provider_id": "P017",
+    "patient_id": "PAT0789",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3809.04,
+    "claim_date": "2026-08-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00681",
+    "provider_id": "P018",
+    "patient_id": "PAT0428",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14172.69,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00682",
+    "provider_id": "P018",
+    "patient_id": "PAT0371",
+    "procedure_code": "PROC-001",
+    "claim_amount": 15145.42,
+    "claim_date": "2026-07-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00683",
+    "provider_id": "P018",
+    "patient_id": "PAT0749",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14821.43,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00684",
+    "provider_id": "P018",
+    "patient_id": "PAT0668",
+    "procedure_code": "PROC-001",
+    "claim_amount": 15981.88,
+    "claim_date": "2026-08-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00685",
+    "provider_id": "P018",
+    "patient_id": "PAT0294",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12536.12,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00686",
+    "provider_id": "P018",
+    "patient_id": "PAT0720",
+    "procedure_code": "PROC-003",
+    "claim_amount": 13131.89,
+    "claim_date": "2026-08-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00687",
+    "provider_id": "P018",
+    "patient_id": "PAT0618",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14692.14,
+    "claim_date": "2026-08-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00688",
+    "provider_id": "P018",
+    "patient_id": "PAT0708",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12470.33,
+    "claim_date": "2026-07-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00689",
+    "provider_id": "P018",
+    "patient_id": "PAT0155",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14754.86,
+    "claim_date": "2026-07-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00690",
+    "provider_id": "P018",
+    "patient_id": "PAT0631",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12614.44,
+    "claim_date": "2026-08-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00691",
+    "provider_id": "P018",
+    "patient_id": "PAT0386",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14485.55,
+    "claim_date": "2026-08-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00692",
+    "provider_id": "P018",
+    "patient_id": "PAT0444",
+    "procedure_code": "PROC-002",
+    "claim_amount": 14541.08,
+    "claim_date": "2026-07-01",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00693",
+    "provider_id": "P018",
+    "patient_id": "PAT0460",
+    "procedure_code": "PROC-001",
+    "claim_amount": 15584.75,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00694",
+    "provider_id": "P018",
+    "patient_id": "PAT0517",
+    "procedure_code": "PROC-002",
+    "claim_amount": 14908.49,
+    "claim_date": "2026-08-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00695",
+    "provider_id": "P018",
+    "patient_id": "PAT0083",
+    "procedure_code": "PROC-003",
+    "claim_amount": 13957.28,
+    "claim_date": "2026-07-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00696",
+    "provider_id": "P018",
+    "patient_id": "PAT0119",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13992.89,
+    "claim_date": "2026-08-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00697",
+    "provider_id": "P018",
+    "patient_id": "PAT0769",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14271.71,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00698",
+    "provider_id": "P018",
+    "patient_id": "PAT0148",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14998.32,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00699",
+    "provider_id": "P018",
+    "patient_id": "PAT0689",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14785.97,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00700",
+    "provider_id": "P018",
+    "patient_id": "PAT0696",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15188.99,
+    "claim_date": "2026-07-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00701",
+    "provider_id": "P018",
+    "patient_id": "PAT0498",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12335.07,
+    "claim_date": "2026-08-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00702",
+    "provider_id": "P018",
+    "patient_id": "PAT0262",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15976.07,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00703",
+    "provider_id": "P018",
+    "patient_id": "PAT0782",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12069.71,
+    "claim_date": "2026-08-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00704",
+    "provider_id": "P018",
+    "patient_id": "PAT0471",
+    "procedure_code": "PROC-004",
+    "claim_amount": 12992.24,
+    "claim_date": "2026-07-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00705",
+    "provider_id": "P018",
+    "patient_id": "PAT0074",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13483.29,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00706",
+    "provider_id": "P018",
+    "patient_id": "PAT0700",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13810.35,
+    "claim_date": "2026-08-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00707",
+    "provider_id": "P018",
+    "patient_id": "PAT0078",
+    "procedure_code": "PROC-002",
+    "claim_amount": 13752.02,
+    "claim_date": "2026-08-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00708",
+    "provider_id": "P018",
+    "patient_id": "PAT0497",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14291.37,
+    "claim_date": "2026-08-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00709",
+    "provider_id": "P018",
+    "patient_id": "PAT0538",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13835.98,
+    "claim_date": "2026-07-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00710",
+    "provider_id": "P018",
+    "patient_id": "PAT0501",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14865.9,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00711",
+    "provider_id": "P018",
+    "patient_id": "PAT0431",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15909.01,
+    "claim_date": "2026-08-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00712",
+    "provider_id": "P018",
+    "patient_id": "PAT0535",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15735.56,
+    "claim_date": "2026-08-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00713",
+    "provider_id": "P018",
+    "patient_id": "PAT0089",
+    "procedure_code": "PROC-002",
+    "claim_amount": 15587.73,
+    "claim_date": "2026-08-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00714",
+    "provider_id": "P018",
+    "patient_id": "PAT0101",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15074.37,
+    "claim_date": "2026-08-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00715",
+    "provider_id": "P018",
+    "patient_id": "PAT0518",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12602.81,
+    "claim_date": "2026-08-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00716",
+    "provider_id": "P018",
+    "patient_id": "PAT0225",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12119.2,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00717",
+    "provider_id": "P018",
+    "patient_id": "PAT0700",
+    "procedure_code": "PROC-004",
+    "claim_amount": 15779.73,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00718",
+    "provider_id": "P018",
+    "patient_id": "PAT0164",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14347.28,
+    "claim_date": "2026-08-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00719",
+    "provider_id": "P018",
+    "patient_id": "PAT0224",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12309.27,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00720",
+    "provider_id": "P018",
+    "patient_id": "PAT0240",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12046.42,
+    "claim_date": "2026-07-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00721",
+    "provider_id": "P019",
+    "patient_id": "PAT0176",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3490.01,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00722",
+    "provider_id": "P019",
+    "patient_id": "PAT0566",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2544.79,
+    "claim_date": "2026-07-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00723",
+    "provider_id": "P019",
+    "patient_id": "PAT0202",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2283.11,
+    "claim_date": "2026-07-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00724",
+    "provider_id": "P019",
+    "patient_id": "PAT0230",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3861.05,
+    "claim_date": "2026-08-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00725",
+    "provider_id": "P019",
+    "patient_id": "PAT0562",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2841.88,
+    "claim_date": "2026-07-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00726",
+    "provider_id": "P019",
+    "patient_id": "PAT0684",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2885.2,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00727",
+    "provider_id": "P019",
+    "patient_id": "PAT0202",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2831.16,
+    "claim_date": "2026-08-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00728",
+    "provider_id": "P019",
+    "patient_id": "PAT0285",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2687.35,
+    "claim_date": "2026-07-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00729",
+    "provider_id": "P019",
+    "patient_id": "PAT0043",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3317.11,
+    "claim_date": "2026-08-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00730",
+    "provider_id": "P019",
+    "patient_id": "PAT0131",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2407.88,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00731",
+    "provider_id": "P019",
+    "patient_id": "PAT0210",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2465.01,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00732",
+    "provider_id": "P019",
+    "patient_id": "PAT0234",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2539.88,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00733",
+    "provider_id": "P019",
+    "patient_id": "PAT0122",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2835.43,
+    "claim_date": "2026-08-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00734",
+    "provider_id": "P019",
+    "patient_id": "PAT0439",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4046.65,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00735",
+    "provider_id": "P019",
+    "patient_id": "PAT0099",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4063.4,
+    "claim_date": "2026-07-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00736",
+    "provider_id": "P019",
+    "patient_id": "PAT0695",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3235.22,
+    "claim_date": "2026-07-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00737",
+    "provider_id": "P019",
+    "patient_id": "PAT0781",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2570.21,
+    "claim_date": "2026-07-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00738",
+    "provider_id": "P019",
+    "patient_id": "PAT0615",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3011.93,
+    "claim_date": "2026-07-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00739",
+    "provider_id": "P019",
+    "patient_id": "PAT0794",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3517.31,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00740",
+    "provider_id": "P019",
+    "patient_id": "PAT0643",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3370.96,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00741",
+    "provider_id": "P019",
+    "patient_id": "PAT0432",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2546.65,
+    "claim_date": "2026-07-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00742",
+    "provider_id": "P019",
+    "patient_id": "PAT0255",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4198.32,
+    "claim_date": "2026-08-22",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00743",
+    "provider_id": "P019",
+    "patient_id": "PAT0564",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2321.66,
+    "claim_date": "2026-07-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00744",
+    "provider_id": "P019",
+    "patient_id": "PAT0657",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3799.88,
+    "claim_date": "2026-08-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00745",
+    "provider_id": "P019",
+    "patient_id": "PAT0109",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2989.99,
+    "claim_date": "2026-08-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00746",
+    "provider_id": "P019",
+    "patient_id": "PAT0761",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2868.27,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00747",
+    "provider_id": "P019",
+    "patient_id": "PAT0040",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2797.3,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00748",
+    "provider_id": "P019",
+    "patient_id": "PAT0541",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3254.11,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00749",
+    "provider_id": "P019",
+    "patient_id": "PAT0084",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2826.37,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00750",
+    "provider_id": "P019",
+    "patient_id": "PAT0516",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2337.85,
+    "claim_date": "2026-07-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00751",
+    "provider_id": "P019",
+    "patient_id": "PAT0377",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3742.44,
+    "claim_date": "2026-08-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00752",
+    "provider_id": "P019",
+    "patient_id": "PAT0266",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2404.26,
+    "claim_date": "2026-07-30",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00753",
+    "provider_id": "P019",
+    "patient_id": "PAT0523",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2290.08,
+    "claim_date": "2026-08-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00754",
+    "provider_id": "P019",
+    "patient_id": "PAT0361",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4162.37,
+    "claim_date": "2026-08-16",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00755",
+    "provider_id": "P019",
+    "patient_id": "PAT0381",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2503.99,
+    "claim_date": "2026-08-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00756",
+    "provider_id": "P019",
+    "patient_id": "PAT0040",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2865.83,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00757",
+    "provider_id": "P019",
+    "patient_id": "PAT0624",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3763.51,
+    "claim_date": "2026-08-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00758",
+    "provider_id": "P019",
+    "patient_id": "PAT0357",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3957.92,
+    "claim_date": "2026-08-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00759",
+    "provider_id": "P019",
+    "patient_id": "PAT0493",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2623.2,
+    "claim_date": "2026-07-20",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00760",
+    "provider_id": "P019",
+    "patient_id": "PAT0429",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2716.18,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00761",
+    "provider_id": "P020",
+    "patient_id": "PAT0450",
+    "procedure_code": "PROC-002",
+    "claim_amount": 15872.87,
+    "claim_date": "2026-08-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00762",
+    "provider_id": "P020",
+    "patient_id": "PAT0305",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14031.25,
+    "claim_date": "2026-08-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00763",
+    "provider_id": "P020",
+    "patient_id": "PAT0489",
+    "procedure_code": "PROC-004",
+    "claim_amount": 12063.28,
+    "claim_date": "2026-08-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00764",
+    "provider_id": "P020",
+    "patient_id": "PAT0474",
+    "procedure_code": "PROC-004",
+    "claim_amount": 12109.12,
+    "claim_date": "2026-07-31",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00765",
+    "provider_id": "P020",
+    "patient_id": "PAT0619",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12561.09,
+    "claim_date": "2026-08-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00766",
+    "provider_id": "P020",
+    "patient_id": "PAT0521",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14966.31,
+    "claim_date": "2026-08-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00767",
+    "provider_id": "P020",
+    "patient_id": "PAT0730",
+    "procedure_code": "PROC-002",
+    "claim_amount": 13091.85,
+    "claim_date": "2026-08-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00768",
+    "provider_id": "P020",
+    "patient_id": "PAT0172",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14383.76,
+    "claim_date": "2026-08-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00769",
+    "provider_id": "P020",
+    "patient_id": "PAT0681",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14934.33,
+    "claim_date": "2026-07-20",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00770",
+    "provider_id": "P020",
+    "patient_id": "PAT0267",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15903.35,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00771",
+    "provider_id": "P020",
+    "patient_id": "PAT0328",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15465.29,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00772",
+    "provider_id": "P020",
+    "patient_id": "PAT0568",
+    "procedure_code": "PROC-004",
+    "claim_amount": 15168.57,
+    "claim_date": "2026-08-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00773",
+    "provider_id": "P020",
+    "patient_id": "PAT0769",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12753.95,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00774",
+    "provider_id": "P020",
+    "patient_id": "PAT0352",
+    "procedure_code": "PROC-002",
+    "claim_amount": 14061.29,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00775",
+    "provider_id": "P020",
+    "patient_id": "PAT0605",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12276.71,
+    "claim_date": "2026-08-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00776",
+    "provider_id": "P020",
+    "patient_id": "PAT0258",
+    "procedure_code": "PROC-004",
+    "claim_amount": 14736.7,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00777",
+    "provider_id": "P020",
+    "patient_id": "PAT0035",
+    "procedure_code": "PROC-001",
+    "claim_amount": 13531.63,
+    "claim_date": "2026-08-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00778",
+    "provider_id": "P020",
+    "patient_id": "PAT0416",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15351.2,
+    "claim_date": "2026-08-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00779",
+    "provider_id": "P020",
+    "patient_id": "PAT0380",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15496.08,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00780",
+    "provider_id": "P020",
+    "patient_id": "PAT0680",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13504.44,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00781",
+    "provider_id": "P020",
+    "patient_id": "PAT0781",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14583.32,
+    "claim_date": "2026-07-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00782",
+    "provider_id": "P020",
+    "patient_id": "PAT0443",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14852.46,
+    "claim_date": "2026-07-20",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00783",
+    "provider_id": "P020",
+    "patient_id": "PAT0059",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15282.55,
+    "claim_date": "2026-07-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00784",
+    "provider_id": "P020",
+    "patient_id": "PAT0327",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13214.05,
+    "claim_date": "2026-07-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00785",
+    "provider_id": "P020",
+    "patient_id": "PAT0276",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12240.07,
+    "claim_date": "2026-08-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00786",
+    "provider_id": "P020",
+    "patient_id": "PAT0559",
+    "procedure_code": "PROC-003",
+    "claim_amount": 13823.12,
+    "claim_date": "2026-07-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00787",
+    "provider_id": "P020",
+    "patient_id": "PAT0478",
+    "procedure_code": "PROC-004",
+    "claim_amount": 15296.95,
+    "claim_date": "2026-08-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00788",
+    "provider_id": "P020",
+    "patient_id": "PAT0494",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12543.79,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00789",
+    "provider_id": "P020",
+    "patient_id": "PAT0637",
+    "procedure_code": "PROC-002",
+    "claim_amount": 15609.22,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00790",
+    "provider_id": "P020",
+    "patient_id": "PAT0262",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13129.32,
+    "claim_date": "2026-07-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00791",
+    "provider_id": "P020",
+    "patient_id": "PAT0160",
+    "procedure_code": "PROC-005",
+    "claim_amount": 13775.84,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00792",
+    "provider_id": "P020",
+    "patient_id": "PAT0120",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12739.05,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00793",
+    "provider_id": "P020",
+    "patient_id": "PAT0727",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12208.68,
+    "claim_date": "2026-08-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00794",
+    "provider_id": "P020",
+    "patient_id": "PAT0089",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13038.41,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00795",
+    "provider_id": "P020",
+    "patient_id": "PAT0177",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12153.11,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00796",
+    "provider_id": "P020",
+    "patient_id": "PAT0576",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12182.12,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00797",
+    "provider_id": "P020",
+    "patient_id": "PAT0647",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14600.87,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00798",
+    "provider_id": "P020",
+    "patient_id": "PAT0675",
+    "procedure_code": "PROC-004",
+    "claim_amount": 14235.29,
+    "claim_date": "2026-07-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00799",
+    "provider_id": "P020",
+    "patient_id": "PAT0721",
+    "procedure_code": "PROC-004",
+    "claim_amount": 12104.31,
+    "claim_date": "2026-07-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00800",
+    "provider_id": "P020",
+    "patient_id": "PAT0183",
+    "procedure_code": "PROC-002",
+    "claim_amount": 15014.89,
+    "claim_date": "2026-08-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00801",
+    "provider_id": "P021",
+    "patient_id": "PAT0779",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3086.86,
+    "claim_date": "2026-08-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00802",
+    "provider_id": "P021",
+    "patient_id": "PAT0379",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3232.35,
+    "claim_date": "2026-07-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00803",
+    "provider_id": "P021",
+    "patient_id": "PAT0118",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3104.87,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00804",
+    "provider_id": "P021",
+    "patient_id": "PAT0613",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3094.53,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00805",
+    "provider_id": "P021",
+    "patient_id": "PAT0058",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3050.65,
+    "claim_date": "2026-07-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00806",
+    "provider_id": "P021",
+    "patient_id": "PAT0218",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2800.66,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00807",
+    "provider_id": "P021",
+    "patient_id": "PAT0166",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2909.06,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00808",
+    "provider_id": "P021",
+    "patient_id": "PAT0253",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3189.21,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00809",
+    "provider_id": "P021",
+    "patient_id": "PAT0799",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4076.61,
+    "claim_date": "2026-07-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00810",
+    "provider_id": "P021",
+    "patient_id": "PAT0467",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4113.99,
+    "claim_date": "2026-07-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00811",
+    "provider_id": "P021",
+    "patient_id": "PAT0271",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2782.26,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00812",
+    "provider_id": "P021",
+    "patient_id": "PAT0377",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2432.54,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00813",
+    "provider_id": "P021",
+    "patient_id": "PAT0204",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4198.66,
+    "claim_date": "2026-08-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00814",
+    "provider_id": "P021",
+    "patient_id": "PAT0003",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3791.07,
+    "claim_date": "2026-08-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00815",
+    "provider_id": "P021",
+    "patient_id": "PAT0393",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3896.96,
+    "claim_date": "2026-07-27",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00816",
+    "provider_id": "P021",
+    "patient_id": "PAT0497",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3941.04,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00817",
+    "provider_id": "P021",
+    "patient_id": "PAT0698",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3735.4,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00818",
+    "provider_id": "P021",
+    "patient_id": "PAT0585",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3374.86,
+    "claim_date": "2026-08-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00819",
+    "provider_id": "P021",
+    "patient_id": "PAT0027",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2715.85,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00820",
+    "provider_id": "P021",
+    "patient_id": "PAT0429",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3372.82,
+    "claim_date": "2026-08-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00821",
+    "provider_id": "P021",
+    "patient_id": "PAT0324",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2760.67,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00822",
+    "provider_id": "P021",
+    "patient_id": "PAT0176",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3009.32,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00823",
+    "provider_id": "P021",
+    "patient_id": "PAT0427",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2245.63,
+    "claim_date": "2026-07-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00824",
+    "provider_id": "P021",
+    "patient_id": "PAT0516",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3223.03,
+    "claim_date": "2026-07-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00825",
+    "provider_id": "P021",
+    "patient_id": "PAT0202",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2374.72,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00826",
+    "provider_id": "P021",
+    "patient_id": "PAT0568",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3340.65,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00827",
+    "provider_id": "P021",
+    "patient_id": "PAT0729",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2444.43,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00828",
+    "provider_id": "P021",
+    "patient_id": "PAT0707",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3523.22,
+    "claim_date": "2026-08-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00829",
+    "provider_id": "P021",
+    "patient_id": "PAT0727",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2583.82,
+    "claim_date": "2026-07-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00830",
+    "provider_id": "P021",
+    "patient_id": "PAT0212",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3279.29,
+    "claim_date": "2026-08-20",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00831",
+    "provider_id": "P021",
+    "patient_id": "PAT0172",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3177.54,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00832",
+    "provider_id": "P021",
+    "patient_id": "PAT0454",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2403.87,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00833",
+    "provider_id": "P021",
+    "patient_id": "PAT0783",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3998.65,
+    "claim_date": "2026-08-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00834",
+    "provider_id": "P021",
+    "patient_id": "PAT0697",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3930.15,
+    "claim_date": "2026-07-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00835",
+    "provider_id": "P021",
+    "patient_id": "PAT0344",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3897.14,
+    "claim_date": "2026-08-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00836",
+    "provider_id": "P021",
+    "patient_id": "PAT0514",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3396.62,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00837",
+    "provider_id": "P021",
+    "patient_id": "PAT0105",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3342.94,
+    "claim_date": "2026-08-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00838",
+    "provider_id": "P021",
+    "patient_id": "PAT0613",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2363.14,
+    "claim_date": "2026-08-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00839",
+    "provider_id": "P021",
+    "patient_id": "PAT0112",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3922.43,
+    "claim_date": "2026-07-27",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00840",
+    "provider_id": "P021",
+    "patient_id": "PAT0317",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2826.13,
+    "claim_date": "2026-08-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00841",
+    "provider_id": "P022",
+    "patient_id": "PAT0413",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2944.18,
+    "claim_date": "2026-08-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00842",
+    "provider_id": "P022",
+    "patient_id": "PAT0516",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2657.31,
+    "claim_date": "2026-07-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00843",
+    "provider_id": "P022",
+    "patient_id": "PAT0753",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4182.6,
+    "claim_date": "2026-08-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00844",
+    "provider_id": "P022",
+    "patient_id": "PAT0161",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3339.45,
+    "claim_date": "2026-07-20",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00845",
+    "provider_id": "P022",
+    "patient_id": "PAT0682",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2777.74,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00846",
+    "provider_id": "P022",
+    "patient_id": "PAT0210",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2308.49,
+    "claim_date": "2026-08-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00847",
+    "provider_id": "P022",
+    "patient_id": "PAT0158",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4045.95,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00848",
+    "provider_id": "P022",
+    "patient_id": "PAT0112",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3683.86,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00849",
+    "provider_id": "P022",
+    "patient_id": "PAT0493",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4043.22,
+    "claim_date": "2026-07-30",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00850",
+    "provider_id": "P022",
+    "patient_id": "PAT0723",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3845.08,
+    "claim_date": "2026-07-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00851",
+    "provider_id": "P022",
+    "patient_id": "PAT0028",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3004.07,
+    "claim_date": "2026-07-01",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00852",
+    "provider_id": "P022",
+    "patient_id": "PAT0395",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4076.01,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00853",
+    "provider_id": "P022",
+    "patient_id": "PAT0701",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3831.94,
+    "claim_date": "2026-07-01",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00854",
+    "provider_id": "P022",
+    "patient_id": "PAT0450",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3233.82,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00855",
+    "provider_id": "P022",
+    "patient_id": "PAT0407",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2522.07,
+    "claim_date": "2026-08-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00856",
+    "provider_id": "P022",
+    "patient_id": "PAT0273",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3834.67,
+    "claim_date": "2026-08-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00857",
+    "provider_id": "P022",
+    "patient_id": "PAT0363",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3211.37,
+    "claim_date": "2026-07-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00858",
+    "provider_id": "P022",
+    "patient_id": "PAT0739",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2757.88,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00859",
+    "provider_id": "P022",
+    "patient_id": "PAT0687",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3339.99,
+    "claim_date": "2026-08-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00860",
+    "provider_id": "P022",
+    "patient_id": "PAT0409",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2200.58,
+    "claim_date": "2026-08-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00861",
+    "provider_id": "P022",
+    "patient_id": "PAT0527",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3167.41,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00862",
+    "provider_id": "P022",
+    "patient_id": "PAT0393",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2987.46,
+    "claim_date": "2026-07-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00863",
+    "provider_id": "P022",
+    "patient_id": "PAT0183",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3271.2,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00864",
+    "provider_id": "P022",
+    "patient_id": "PAT0654",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3174.94,
+    "claim_date": "2026-08-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00865",
+    "provider_id": "P022",
+    "patient_id": "PAT0756",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2333.24,
+    "claim_date": "2026-08-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00866",
+    "provider_id": "P022",
+    "patient_id": "PAT0473",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2768.46,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00867",
+    "provider_id": "P022",
+    "patient_id": "PAT0698",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3089.2,
+    "claim_date": "2026-07-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00868",
+    "provider_id": "P022",
+    "patient_id": "PAT0491",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2641.02,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00869",
+    "provider_id": "P022",
+    "patient_id": "PAT0751",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2257.29,
+    "claim_date": "2026-07-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00870",
+    "provider_id": "P022",
+    "patient_id": "PAT0728",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2558.23,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00871",
+    "provider_id": "P022",
+    "patient_id": "PAT0241",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3308.67,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00872",
+    "provider_id": "P022",
+    "patient_id": "PAT0249",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3917.77,
+    "claim_date": "2026-07-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00873",
+    "provider_id": "P022",
+    "patient_id": "PAT0162",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3080.18,
+    "claim_date": "2026-08-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00874",
+    "provider_id": "P022",
+    "patient_id": "PAT0487",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2803.3,
+    "claim_date": "2026-08-20",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00875",
+    "provider_id": "P022",
+    "patient_id": "PAT0209",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2676.28,
+    "claim_date": "2026-07-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00876",
+    "provider_id": "P022",
+    "patient_id": "PAT0650",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3431.94,
+    "claim_date": "2026-08-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00877",
+    "provider_id": "P022",
+    "patient_id": "PAT0630",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3348.26,
+    "claim_date": "2026-07-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00878",
+    "provider_id": "P022",
+    "patient_id": "PAT0630",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3827.71,
+    "claim_date": "2026-07-27",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00879",
+    "provider_id": "P022",
+    "patient_id": "PAT0665",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3875.97,
+    "claim_date": "2026-07-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00880",
+    "provider_id": "P022",
+    "patient_id": "PAT0336",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2510.26,
+    "claim_date": "2026-07-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00881",
+    "provider_id": "P023",
+    "patient_id": "PAT0640",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2965.45,
+    "claim_date": "2026-07-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00882",
+    "provider_id": "P023",
+    "patient_id": "PAT0186",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3140.7,
+    "claim_date": "2026-07-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00883",
+    "provider_id": "P023",
+    "patient_id": "PAT0782",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2592.35,
+    "claim_date": "2026-07-07",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00884",
+    "provider_id": "P023",
+    "patient_id": "PAT0556",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3339.84,
+    "claim_date": "2026-08-08",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00885",
+    "provider_id": "P023",
+    "patient_id": "PAT0794",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3277.82,
+    "claim_date": "2026-07-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00886",
+    "provider_id": "P023",
+    "patient_id": "PAT0664",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3751.19,
+    "claim_date": "2026-07-28",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00887",
+    "provider_id": "P023",
+    "patient_id": "PAT0758",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2449.78,
+    "claim_date": "2026-07-03",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00888",
+    "provider_id": "P023",
+    "patient_id": "PAT0346",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3467.42,
+    "claim_date": "2026-08-14",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00889",
+    "provider_id": "P023",
+    "patient_id": "PAT0478",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2805.91,
+    "claim_date": "2026-08-14",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00890",
+    "provider_id": "P023",
+    "patient_id": "PAT0497",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3262.29,
+    "claim_date": "2026-08-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00891",
+    "provider_id": "P023",
+    "patient_id": "PAT0550",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2750.59,
+    "claim_date": "2026-08-23",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00892",
+    "provider_id": "P023",
+    "patient_id": "PAT0049",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3843.13,
+    "claim_date": "2026-07-03",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00893",
+    "provider_id": "P023",
+    "patient_id": "PAT0512",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2775.63,
+    "claim_date": "2026-07-17",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00894",
+    "provider_id": "P023",
+    "patient_id": "PAT0232",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3269.63,
+    "claim_date": "2026-08-08",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00895",
+    "provider_id": "P023",
+    "patient_id": "PAT0636",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3498.34,
+    "claim_date": "2026-08-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00896",
+    "provider_id": "P023",
+    "patient_id": "PAT0492",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3639.79,
+    "claim_date": "2026-07-15",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00897",
+    "provider_id": "P023",
+    "patient_id": "PAT0241",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2233.85,
+    "claim_date": "2026-07-30",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00898",
+    "provider_id": "P023",
+    "patient_id": "PAT0567",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4186.32,
+    "claim_date": "2026-07-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00899",
+    "provider_id": "P023",
+    "patient_id": "PAT0576",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4008.13,
+    "claim_date": "2026-08-06",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00900",
+    "provider_id": "P023",
+    "patient_id": "PAT0337",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3828.93,
+    "claim_date": "2026-08-10",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00901",
+    "provider_id": "P023",
+    "patient_id": "PAT0620",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2832.1,
+    "claim_date": "2026-08-21",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00902",
+    "provider_id": "P023",
+    "patient_id": "PAT0125",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3650.64,
+    "claim_date": "2026-07-30",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00903",
+    "provider_id": "P023",
+    "patient_id": "PAT0432",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2913.07,
+    "claim_date": "2026-07-19",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00904",
+    "provider_id": "P023",
+    "patient_id": "PAT0799",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3004.5,
+    "claim_date": "2026-08-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00905",
+    "provider_id": "P023",
+    "patient_id": "PAT0607",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3243.61,
+    "claim_date": "2026-08-29",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00906",
+    "provider_id": "P023",
+    "patient_id": "PAT0337",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3471.16,
+    "claim_date": "2026-07-11",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00907",
+    "provider_id": "P023",
+    "patient_id": "PAT0298",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2831.85,
+    "claim_date": "2026-08-15",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00908",
+    "provider_id": "P023",
+    "patient_id": "PAT0589",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2530.74,
+    "claim_date": "2026-07-21",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00909",
+    "provider_id": "P023",
+    "patient_id": "PAT0650",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3138.13,
+    "claim_date": "2026-08-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00910",
+    "provider_id": "P023",
+    "patient_id": "PAT0788",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2577.45,
+    "claim_date": "2026-08-23",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00911",
+    "provider_id": "P023",
+    "patient_id": "PAT0656",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3140.04,
+    "claim_date": "2026-08-08",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00912",
+    "provider_id": "P023",
+    "patient_id": "PAT0231",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2969.65,
+    "claim_date": "2026-08-12",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00913",
+    "provider_id": "P023",
+    "patient_id": "PAT0062",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3930.29,
+    "claim_date": "2026-07-30",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00914",
+    "provider_id": "P023",
+    "patient_id": "PAT0256",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3990.43,
+    "claim_date": "2026-08-20",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00915",
+    "provider_id": "P023",
+    "patient_id": "PAT0722",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3535.5,
+    "claim_date": "2026-08-20",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00916",
+    "provider_id": "P023",
+    "patient_id": "PAT0298",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4108.32,
+    "claim_date": "2026-08-04",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00917",
+    "provider_id": "P023",
+    "patient_id": "PAT0598",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3453.95,
+    "claim_date": "2026-08-03",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00918",
+    "provider_id": "P023",
+    "patient_id": "PAT0637",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3278.91,
+    "claim_date": "2026-08-07",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00919",
+    "provider_id": "P023",
+    "patient_id": "PAT0526",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3534.34,
+    "claim_date": "2026-07-09",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00920",
+    "provider_id": "P023",
+    "patient_id": "PAT0317",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3109.27,
+    "claim_date": "2026-07-02",
+    "specialty": "Dermatology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00921",
+    "provider_id": "P024",
+    "patient_id": "PAT0463",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14519.58,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00922",
+    "provider_id": "P024",
+    "patient_id": "PAT0062",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13949.08,
+    "claim_date": "2026-08-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00923",
+    "provider_id": "P024",
+    "patient_id": "PAT0565",
+    "procedure_code": "PROC-004",
+    "claim_amount": 14854.61,
+    "claim_date": "2026-07-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00924",
+    "provider_id": "P024",
+    "patient_id": "PAT0783",
+    "procedure_code": "PROC-004",
+    "claim_amount": 15298.62,
+    "claim_date": "2026-08-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00925",
+    "provider_id": "P024",
+    "patient_id": "PAT0170",
+    "procedure_code": "PROC-002",
+    "claim_amount": 14365.33,
+    "claim_date": "2026-08-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00926",
+    "provider_id": "P024",
+    "patient_id": "PAT0406",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14087.72,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00927",
+    "provider_id": "P024",
+    "patient_id": "PAT0519",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12585.18,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00928",
+    "provider_id": "P024",
+    "patient_id": "PAT0319",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15213.82,
+    "claim_date": "2026-08-10",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00929",
+    "provider_id": "P024",
+    "patient_id": "PAT0198",
+    "procedure_code": "PROC-005",
+    "claim_amount": 12287.47,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00930",
+    "provider_id": "P024",
+    "patient_id": "PAT0204",
+    "procedure_code": "PROC-002",
+    "claim_amount": 12615.24,
+    "claim_date": "2026-07-05",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00931",
+    "provider_id": "P024",
+    "patient_id": "PAT0421",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12231.96,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00932",
+    "provider_id": "P024",
+    "patient_id": "PAT0742",
+    "procedure_code": "PROC-001",
+    "claim_amount": 13260.52,
+    "claim_date": "2026-07-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00933",
+    "provider_id": "P024",
+    "patient_id": "PAT0289",
+    "procedure_code": "PROC-005",
+    "claim_amount": 15501.5,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00934",
+    "provider_id": "P024",
+    "patient_id": "PAT0628",
+    "procedure_code": "PROC-001",
+    "claim_amount": 13066.21,
+    "claim_date": "2026-08-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00935",
+    "provider_id": "P024",
+    "patient_id": "PAT0561",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12072.08,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00936",
+    "provider_id": "P024",
+    "patient_id": "PAT0615",
+    "procedure_code": "PROC-004",
+    "claim_amount": 14036.47,
+    "claim_date": "2026-08-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00937",
+    "provider_id": "P024",
+    "patient_id": "PAT0103",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14740.01,
+    "claim_date": "2026-08-20",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00938",
+    "provider_id": "P024",
+    "patient_id": "PAT0618",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14699.76,
+    "claim_date": "2026-08-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00939",
+    "provider_id": "P024",
+    "patient_id": "PAT0183",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14929.72,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00940",
+    "provider_id": "P024",
+    "patient_id": "PAT0756",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12932.71,
+    "claim_date": "2026-08-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00941",
+    "provider_id": "P024",
+    "patient_id": "PAT0569",
+    "procedure_code": "PROC-003",
+    "claim_amount": 13329.89,
+    "claim_date": "2026-08-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00942",
+    "provider_id": "P024",
+    "patient_id": "PAT0455",
+    "procedure_code": "PROC-003",
+    "claim_amount": 15624.46,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00943",
+    "provider_id": "P024",
+    "patient_id": "PAT0510",
+    "procedure_code": "PROC-004",
+    "claim_amount": 14778.89,
+    "claim_date": "2026-07-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00944",
+    "provider_id": "P024",
+    "patient_id": "PAT0471",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14042.79,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00945",
+    "provider_id": "P024",
+    "patient_id": "PAT0791",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14051.15,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00946",
+    "provider_id": "P024",
+    "patient_id": "PAT0746",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12629.89,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00947",
+    "provider_id": "P024",
+    "patient_id": "PAT0111",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12167.15,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00948",
+    "provider_id": "P024",
+    "patient_id": "PAT0125",
+    "procedure_code": "PROC-004",
+    "claim_amount": 12894.18,
+    "claim_date": "2026-07-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00949",
+    "provider_id": "P024",
+    "patient_id": "PAT0128",
+    "procedure_code": "PROC-001",
+    "claim_amount": 15745.59,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00950",
+    "provider_id": "P024",
+    "patient_id": "PAT0680",
+    "procedure_code": "PROC-005",
+    "claim_amount": 14857.13,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00951",
+    "provider_id": "P024",
+    "patient_id": "PAT0074",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14294.56,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00952",
+    "provider_id": "P024",
+    "patient_id": "PAT0394",
+    "procedure_code": "PROC-001",
+    "claim_amount": 14830.22,
+    "claim_date": "2026-08-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00953",
+    "provider_id": "P024",
+    "patient_id": "PAT0460",
+    "procedure_code": "PROC-002",
+    "claim_amount": 13511.99,
+    "claim_date": "2026-07-01",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00954",
+    "provider_id": "P024",
+    "patient_id": "PAT0628",
+    "procedure_code": "PROC-003",
+    "claim_amount": 14335.85,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00955",
+    "provider_id": "P024",
+    "patient_id": "PAT0510",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12304.19,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00956",
+    "provider_id": "P024",
+    "patient_id": "PAT0530",
+    "procedure_code": "PROC-001",
+    "claim_amount": 13663.66,
+    "claim_date": "2026-07-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00957",
+    "provider_id": "P024",
+    "patient_id": "PAT0001",
+    "procedure_code": "PROC-001",
+    "claim_amount": 12040.09,
+    "claim_date": "2026-07-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00958",
+    "provider_id": "P024",
+    "patient_id": "PAT0457",
+    "procedure_code": "PROC-004",
+    "claim_amount": 12973.45,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00959",
+    "provider_id": "P024",
+    "patient_id": "PAT0794",
+    "procedure_code": "PROC-003",
+    "claim_amount": 12359.79,
+    "claim_date": "2026-08-15",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00960",
+    "provider_id": "P024",
+    "patient_id": "PAT0471",
+    "procedure_code": "PROC-004",
+    "claim_amount": 13086.64,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00961",
+    "provider_id": "P025",
+    "patient_id": "PAT0665",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2779.19,
+    "claim_date": "2026-07-15",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00962",
+    "provider_id": "P025",
+    "patient_id": "PAT0294",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3489.56,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00963",
+    "provider_id": "P025",
+    "patient_id": "PAT0634",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2451.85,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00964",
+    "provider_id": "P025",
+    "patient_id": "PAT0226",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3734.51,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00965",
+    "provider_id": "P025",
+    "patient_id": "PAT0519",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3093.91,
+    "claim_date": "2026-08-28",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00966",
+    "provider_id": "P025",
+    "patient_id": "PAT0496",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2251.42,
+    "claim_date": "2026-07-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00967",
+    "provider_id": "P025",
+    "patient_id": "PAT0001",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3549.87,
+    "claim_date": "2026-08-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00968",
+    "provider_id": "P025",
+    "patient_id": "PAT0528",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3052.91,
+    "claim_date": "2026-07-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00969",
+    "provider_id": "P025",
+    "patient_id": "PAT0555",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3705.11,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00970",
+    "provider_id": "P025",
+    "patient_id": "PAT0459",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3945.36,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00971",
+    "provider_id": "P025",
+    "patient_id": "PAT0217",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2572.95,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00972",
+    "provider_id": "P025",
+    "patient_id": "PAT0603",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3263.63,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00973",
+    "provider_id": "P025",
+    "patient_id": "PAT0557",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4195.71,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00974",
+    "provider_id": "P025",
+    "patient_id": "PAT0267",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3224.97,
+    "claim_date": "2026-07-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00975",
+    "provider_id": "P025",
+    "patient_id": "PAT0273",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4053.91,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00976",
+    "provider_id": "P025",
+    "patient_id": "PAT0016",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2683.84,
+    "claim_date": "2026-08-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00977",
+    "provider_id": "P025",
+    "patient_id": "PAT0295",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3915.9,
+    "claim_date": "2026-08-05",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00978",
+    "provider_id": "P025",
+    "patient_id": "PAT0257",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3180.91,
+    "claim_date": "2026-07-07",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00979",
+    "provider_id": "P025",
+    "patient_id": "PAT0674",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2940.01,
+    "claim_date": "2026-08-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00980",
+    "provider_id": "P025",
+    "patient_id": "PAT0603",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3537.98,
+    "claim_date": "2026-08-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00981",
+    "provider_id": "P025",
+    "patient_id": "PAT0101",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3817.51,
+    "claim_date": "2026-08-16",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00982",
+    "provider_id": "P025",
+    "patient_id": "PAT0529",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2703.17,
+    "claim_date": "2026-07-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00983",
+    "provider_id": "P025",
+    "patient_id": "PAT0612",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2548.4,
+    "claim_date": "2026-08-16",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00984",
+    "provider_id": "P025",
+    "patient_id": "PAT0098",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2254.1,
+    "claim_date": "2026-08-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00985",
+    "provider_id": "P025",
+    "patient_id": "PAT0018",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2689.22,
+    "claim_date": "2026-07-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00986",
+    "provider_id": "P025",
+    "patient_id": "PAT0086",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3218.99,
+    "claim_date": "2026-07-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00987",
+    "provider_id": "P025",
+    "patient_id": "PAT0622",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3439.02,
+    "claim_date": "2026-07-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00988",
+    "provider_id": "P025",
+    "patient_id": "PAT0598",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2820.54,
+    "claim_date": "2026-08-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00989",
+    "provider_id": "P025",
+    "patient_id": "PAT0348",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3019.57,
+    "claim_date": "2026-07-15",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00990",
+    "provider_id": "P025",
+    "patient_id": "PAT0040",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3224.18,
+    "claim_date": "2026-08-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00991",
+    "provider_id": "P025",
+    "patient_id": "PAT0608",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2487.87,
+    "claim_date": "2026-07-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00992",
+    "provider_id": "P025",
+    "patient_id": "PAT0347",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2497.18,
+    "claim_date": "2026-07-22",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00993",
+    "provider_id": "P025",
+    "patient_id": "PAT0237",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2557.56,
+    "claim_date": "2026-08-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00994",
+    "provider_id": "P025",
+    "patient_id": "PAT0328",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3308.42,
+    "claim_date": "2026-08-04",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00995",
+    "provider_id": "P025",
+    "patient_id": "PAT0580",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3038.41,
+    "claim_date": "2026-08-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00996",
+    "provider_id": "P025",
+    "patient_id": "PAT0611",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3710.37,
+    "claim_date": "2026-07-24",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00997",
+    "provider_id": "P025",
+    "patient_id": "PAT0416",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3812.64,
+    "claim_date": "2026-08-16",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00998",
+    "provider_id": "P025",
+    "patient_id": "PAT0316",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3867.8,
+    "claim_date": "2026-07-20",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C00999",
+    "provider_id": "P025",
+    "patient_id": "PAT0127",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4056.58,
+    "claim_date": "2026-08-15",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01000",
+    "provider_id": "P025",
+    "patient_id": "PAT0699",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3930.41,
+    "claim_date": "2026-08-02",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01001",
+    "provider_id": "P026",
+    "patient_id": "PAT0300",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2963.41,
+    "claim_date": "2026-07-20",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01002",
+    "provider_id": "P026",
+    "patient_id": "PAT0349",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3345.31,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01003",
+    "provider_id": "P026",
+    "patient_id": "PAT0726",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4045.3,
+    "claim_date": "2026-07-01",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01004",
+    "provider_id": "P026",
+    "patient_id": "PAT0133",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3758.61,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01005",
+    "provider_id": "P026",
+    "patient_id": "PAT0207",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3971.23,
+    "claim_date": "2026-07-31",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01006",
+    "provider_id": "P026",
+    "patient_id": "PAT0104",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2932.7,
+    "claim_date": "2026-07-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01007",
+    "provider_id": "P026",
+    "patient_id": "PAT0375",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3869.01,
+    "claim_date": "2026-08-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01008",
+    "provider_id": "P026",
+    "patient_id": "PAT0111",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3266.79,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01009",
+    "provider_id": "P026",
+    "patient_id": "PAT0640",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3471.61,
+    "claim_date": "2026-08-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01010",
+    "provider_id": "P026",
+    "patient_id": "PAT0392",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2226.92,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01011",
+    "provider_id": "P026",
+    "patient_id": "PAT0022",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3964.79,
+    "claim_date": "2026-07-27",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01012",
+    "provider_id": "P026",
+    "patient_id": "PAT0175",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3067.52,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01013",
+    "provider_id": "P026",
+    "patient_id": "PAT0651",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2368.8,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01014",
+    "provider_id": "P026",
+    "patient_id": "PAT0103",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3719.92,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01015",
+    "provider_id": "P026",
+    "patient_id": "PAT0778",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2613.1,
+    "claim_date": "2026-07-31",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01016",
+    "provider_id": "P026",
+    "patient_id": "PAT0359",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2635.34,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01017",
+    "provider_id": "P026",
+    "patient_id": "PAT0713",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3247.61,
+    "claim_date": "2026-08-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01018",
+    "provider_id": "P026",
+    "patient_id": "PAT0329",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2459.49,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01019",
+    "provider_id": "P026",
+    "patient_id": "PAT0632",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2347.21,
+    "claim_date": "2026-07-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01020",
+    "provider_id": "P026",
+    "patient_id": "PAT0290",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3295.1,
+    "claim_date": "2026-08-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01021",
+    "provider_id": "P026",
+    "patient_id": "PAT0089",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2967.81,
+    "claim_date": "2026-07-20",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01022",
+    "provider_id": "P026",
+    "patient_id": "PAT0718",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3143.91,
+    "claim_date": "2026-07-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01023",
+    "provider_id": "P026",
+    "patient_id": "PAT0745",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4085.06,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01024",
+    "provider_id": "P026",
+    "patient_id": "PAT0643",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4127.98,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01025",
+    "provider_id": "P026",
+    "patient_id": "PAT0085",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2355.25,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01026",
+    "provider_id": "P026",
+    "patient_id": "PAT0799",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3434.92,
+    "claim_date": "2026-08-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01027",
+    "provider_id": "P026",
+    "patient_id": "PAT0089",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2476.57,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01028",
+    "provider_id": "P026",
+    "patient_id": "PAT0238",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2912.94,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01029",
+    "provider_id": "P026",
+    "patient_id": "PAT0080",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3245.26,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01030",
+    "provider_id": "P026",
+    "patient_id": "PAT0163",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3311.33,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01031",
+    "provider_id": "P026",
+    "patient_id": "PAT0731",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2617.65,
+    "claim_date": "2026-08-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01032",
+    "provider_id": "P026",
+    "patient_id": "PAT0681",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3061.28,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01033",
+    "provider_id": "P026",
+    "patient_id": "PAT0509",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2303.93,
+    "claim_date": "2026-07-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01034",
+    "provider_id": "P026",
+    "patient_id": "PAT0067",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3524.4,
+    "claim_date": "2026-08-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01035",
+    "provider_id": "P026",
+    "patient_id": "PAT0756",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2332.77,
+    "claim_date": "2026-08-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01036",
+    "provider_id": "P026",
+    "patient_id": "PAT0543",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3877.4,
+    "claim_date": "2026-07-02",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01037",
+    "provider_id": "P026",
+    "patient_id": "PAT0410",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3012.29,
+    "claim_date": "2026-07-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01038",
+    "provider_id": "P026",
+    "patient_id": "PAT0744",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4130.32,
+    "claim_date": "2026-07-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01039",
+    "provider_id": "P026",
+    "patient_id": "PAT0348",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2705.33,
+    "claim_date": "2026-07-31",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01040",
+    "provider_id": "P026",
+    "patient_id": "PAT0638",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2407.24,
+    "claim_date": "2026-08-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01041",
+    "provider_id": "P027",
+    "patient_id": "PAT0017",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3985.7,
+    "claim_date": "2026-07-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01042",
+    "provider_id": "P027",
+    "patient_id": "PAT0431",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3801.42,
+    "claim_date": "2026-07-30",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01043",
+    "provider_id": "P027",
+    "patient_id": "PAT0348",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3180.53,
+    "claim_date": "2026-08-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01044",
+    "provider_id": "P027",
+    "patient_id": "PAT0631",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2915.71,
+    "claim_date": "2026-07-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01045",
+    "provider_id": "P027",
+    "patient_id": "PAT0361",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3027.7,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01046",
+    "provider_id": "P027",
+    "patient_id": "PAT0308",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3814.25,
+    "claim_date": "2026-07-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01047",
+    "provider_id": "P027",
+    "patient_id": "PAT0179",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3407.07,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01048",
+    "provider_id": "P027",
+    "patient_id": "PAT0510",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2287.85,
+    "claim_date": "2026-07-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01049",
+    "provider_id": "P027",
+    "patient_id": "PAT0176",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2686.89,
+    "claim_date": "2026-08-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01050",
+    "provider_id": "P027",
+    "patient_id": "PAT0104",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4083.74,
+    "claim_date": "2026-07-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01051",
+    "provider_id": "P027",
+    "patient_id": "PAT0046",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2717.38,
+    "claim_date": "2026-08-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01052",
+    "provider_id": "P027",
+    "patient_id": "PAT0669",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2817.8,
+    "claim_date": "2026-08-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01053",
+    "provider_id": "P027",
+    "patient_id": "PAT0433",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2214.83,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01054",
+    "provider_id": "P027",
+    "patient_id": "PAT0710",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3999.47,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01055",
+    "provider_id": "P027",
+    "patient_id": "PAT0617",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4093.83,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01056",
+    "provider_id": "P027",
+    "patient_id": "PAT0671",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2266.48,
+    "claim_date": "2026-08-10",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01057",
+    "provider_id": "P027",
+    "patient_id": "PAT0143",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3888.44,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01058",
+    "provider_id": "P027",
+    "patient_id": "PAT0792",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2943.27,
+    "claim_date": "2026-07-03",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01059",
+    "provider_id": "P027",
+    "patient_id": "PAT0678",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4030.74,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01060",
+    "provider_id": "P027",
+    "patient_id": "PAT0137",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2214.07,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01061",
+    "provider_id": "P027",
+    "patient_id": "PAT0451",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4092.36,
+    "claim_date": "2026-07-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01062",
+    "provider_id": "P027",
+    "patient_id": "PAT0257",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2461.84,
+    "claim_date": "2026-07-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01063",
+    "provider_id": "P027",
+    "patient_id": "PAT0297",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2452.72,
+    "claim_date": "2026-08-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01064",
+    "provider_id": "P027",
+    "patient_id": "PAT0718",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3441.89,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01065",
+    "provider_id": "P027",
+    "patient_id": "PAT0001",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3066.77,
+    "claim_date": "2026-08-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01066",
+    "provider_id": "P027",
+    "patient_id": "PAT0785",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2928.61,
+    "claim_date": "2026-08-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01067",
+    "provider_id": "P027",
+    "patient_id": "PAT0492",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3914.75,
+    "claim_date": "2026-08-24",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01068",
+    "provider_id": "P027",
+    "patient_id": "PAT0043",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4144.17,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01069",
+    "provider_id": "P027",
+    "patient_id": "PAT0313",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3716.92,
+    "claim_date": "2026-07-26",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01070",
+    "provider_id": "P027",
+    "patient_id": "PAT0325",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3528.63,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01071",
+    "provider_id": "P027",
+    "patient_id": "PAT0183",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3692.74,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01072",
+    "provider_id": "P027",
+    "patient_id": "PAT0642",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2382.52,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01073",
+    "provider_id": "P027",
+    "patient_id": "PAT0408",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2506.93,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01074",
+    "provider_id": "P027",
+    "patient_id": "PAT0002",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3023.07,
+    "claim_date": "2026-08-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01075",
+    "provider_id": "P027",
+    "patient_id": "PAT0074",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3158.79,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01076",
+    "provider_id": "P027",
+    "patient_id": "PAT0372",
+    "procedure_code": "PROC-004",
+    "claim_amount": 4122.84,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01077",
+    "provider_id": "P027",
+    "patient_id": "PAT0602",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3102.35,
+    "claim_date": "2026-08-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01078",
+    "provider_id": "P027",
+    "patient_id": "PAT0103",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3377.63,
+    "claim_date": "2026-07-15",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01079",
+    "provider_id": "P027",
+    "patient_id": "PAT0557",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3129.19,
+    "claim_date": "2026-07-27",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01080",
+    "provider_id": "P027",
+    "patient_id": "PAT0526",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3734.54,
+    "claim_date": "2026-07-30",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01081",
+    "provider_id": "P028",
+    "patient_id": "PAT0060",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4060.68,
+    "claim_date": "2026-07-15",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01082",
+    "provider_id": "P028",
+    "patient_id": "PAT0467",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2701.79,
+    "claim_date": "2026-08-16",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01083",
+    "provider_id": "P028",
+    "patient_id": "PAT0679",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3282.97,
+    "claim_date": "2026-08-16",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01084",
+    "provider_id": "P028",
+    "patient_id": "PAT0444",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3453.45,
+    "claim_date": "2026-07-20",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01085",
+    "provider_id": "P028",
+    "patient_id": "PAT0705",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3917.81,
+    "claim_date": "2026-08-08",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01086",
+    "provider_id": "P028",
+    "patient_id": "PAT0680",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2306.31,
+    "claim_date": "2026-07-23",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01087",
+    "provider_id": "P028",
+    "patient_id": "PAT0497",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2243.15,
+    "claim_date": "2026-08-06",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01088",
+    "provider_id": "P028",
+    "patient_id": "PAT0741",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2380.16,
+    "claim_date": "2026-08-26",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01089",
+    "provider_id": "P028",
+    "patient_id": "PAT0398",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2595.89,
+    "claim_date": "2026-08-23",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01090",
+    "provider_id": "P028",
+    "patient_id": "PAT0767",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3621.42,
+    "claim_date": "2026-08-22",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01091",
+    "provider_id": "P028",
+    "patient_id": "PAT0448",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4127.32,
+    "claim_date": "2026-07-13",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01092",
+    "provider_id": "P028",
+    "patient_id": "PAT0386",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2499.33,
+    "claim_date": "2026-07-24",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01093",
+    "provider_id": "P028",
+    "patient_id": "PAT0656",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2449.22,
+    "claim_date": "2026-07-22",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01094",
+    "provider_id": "P028",
+    "patient_id": "PAT0740",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2812.67,
+    "claim_date": "2026-08-02",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01095",
+    "provider_id": "P028",
+    "patient_id": "PAT0049",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3954.77,
+    "claim_date": "2026-07-13",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01096",
+    "provider_id": "P028",
+    "patient_id": "PAT0242",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3552.9,
+    "claim_date": "2026-07-08",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01097",
+    "provider_id": "P028",
+    "patient_id": "PAT0015",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3853.4,
+    "claim_date": "2026-07-23",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01098",
+    "provider_id": "P028",
+    "patient_id": "PAT0419",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3232.35,
+    "claim_date": "2026-07-22",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01099",
+    "provider_id": "P028",
+    "patient_id": "PAT0154",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3423.96,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01100",
+    "provider_id": "P028",
+    "patient_id": "PAT0357",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4052.89,
+    "claim_date": "2026-08-16",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01101",
+    "provider_id": "P028",
+    "patient_id": "PAT0189",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2326.44,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01102",
+    "provider_id": "P028",
+    "patient_id": "PAT0280",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3716.86,
+    "claim_date": "2026-08-27",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01103",
+    "provider_id": "P028",
+    "patient_id": "PAT0249",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3558.17,
+    "claim_date": "2026-07-25",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01104",
+    "provider_id": "P028",
+    "patient_id": "PAT0437",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2345.96,
+    "claim_date": "2026-08-06",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01105",
+    "provider_id": "P028",
+    "patient_id": "PAT0563",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2917.92,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01106",
+    "provider_id": "P028",
+    "patient_id": "PAT0297",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3738.97,
+    "claim_date": "2026-08-13",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01107",
+    "provider_id": "P028",
+    "patient_id": "PAT0046",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2851.99,
+    "claim_date": "2026-08-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01108",
+    "provider_id": "P028",
+    "patient_id": "PAT0770",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4039.05,
+    "claim_date": "2026-07-28",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01109",
+    "provider_id": "P028",
+    "patient_id": "PAT0656",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3702.69,
+    "claim_date": "2026-08-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01110",
+    "provider_id": "P028",
+    "patient_id": "PAT0132",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2423.46,
+    "claim_date": "2026-08-18",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01111",
+    "provider_id": "P028",
+    "patient_id": "PAT0359",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3745.85,
+    "claim_date": "2026-08-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01112",
+    "provider_id": "P028",
+    "patient_id": "PAT0567",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2442.6,
+    "claim_date": "2026-08-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01113",
+    "provider_id": "P028",
+    "patient_id": "PAT0535",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3638.93,
+    "claim_date": "2026-07-05",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01114",
+    "provider_id": "P028",
+    "patient_id": "PAT0018",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3450.68,
+    "claim_date": "2026-07-04",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01115",
+    "provider_id": "P028",
+    "patient_id": "PAT0297",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3978.63,
+    "claim_date": "2026-08-12",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01116",
+    "provider_id": "P028",
+    "patient_id": "PAT0617",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3058.26,
+    "claim_date": "2026-07-24",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01117",
+    "provider_id": "P028",
+    "patient_id": "PAT0019",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3310.09,
+    "claim_date": "2026-08-10",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01118",
+    "provider_id": "P028",
+    "patient_id": "PAT0139",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2396.23,
+    "claim_date": "2026-07-03",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01119",
+    "provider_id": "P028",
+    "patient_id": "PAT0306",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3228.48,
+    "claim_date": "2026-08-21",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01120",
+    "provider_id": "P028",
+    "patient_id": "PAT0033",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2972.01,
+    "claim_date": "2026-08-07",
+    "specialty": "Orthopedics",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01121",
+    "provider_id": "P029",
+    "patient_id": "PAT0696",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4149.39,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01122",
+    "provider_id": "P029",
+    "patient_id": "PAT0296",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3980.47,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01123",
+    "provider_id": "P029",
+    "patient_id": "PAT0192",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3142.74,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01124",
+    "provider_id": "P029",
+    "patient_id": "PAT0608",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3680.52,
+    "claim_date": "2026-08-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01125",
+    "provider_id": "P029",
+    "patient_id": "PAT0756",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2992.2,
+    "claim_date": "2026-07-17",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01126",
+    "provider_id": "P029",
+    "patient_id": "PAT0247",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2373.76,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01127",
+    "provider_id": "P029",
+    "patient_id": "PAT0057",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3256.16,
+    "claim_date": "2026-07-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01128",
+    "provider_id": "P029",
+    "patient_id": "PAT0555",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2712.47,
+    "claim_date": "2026-07-31",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01129",
+    "provider_id": "P029",
+    "patient_id": "PAT0150",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2952.32,
+    "claim_date": "2026-07-06",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01130",
+    "provider_id": "P029",
+    "patient_id": "PAT0012",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3304.91,
+    "claim_date": "2026-07-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01131",
+    "provider_id": "P029",
+    "patient_id": "PAT0305",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3035.24,
+    "claim_date": "2026-08-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01132",
+    "provider_id": "P029",
+    "patient_id": "PAT0326",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3771.98,
+    "claim_date": "2026-07-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01133",
+    "provider_id": "P029",
+    "patient_id": "PAT0670",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3865.58,
+    "claim_date": "2026-08-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01134",
+    "provider_id": "P029",
+    "patient_id": "PAT0664",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3121.69,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01135",
+    "provider_id": "P029",
+    "patient_id": "PAT0149",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2433.95,
+    "claim_date": "2026-08-29",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01136",
+    "provider_id": "P029",
+    "patient_id": "PAT0290",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3898.39,
+    "claim_date": "2026-07-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01137",
+    "provider_id": "P029",
+    "patient_id": "PAT0789",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3212.1,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01138",
+    "provider_id": "P029",
+    "patient_id": "PAT0143",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3486.06,
+    "claim_date": "2026-07-26",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01139",
+    "provider_id": "P029",
+    "patient_id": "PAT0404",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2336.34,
+    "claim_date": "2026-08-15",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01140",
+    "provider_id": "P029",
+    "patient_id": "PAT0238",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4121.15,
+    "claim_date": "2026-07-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01141",
+    "provider_id": "P029",
+    "patient_id": "PAT0693",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2319.65,
+    "claim_date": "2026-07-27",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01142",
+    "provider_id": "P029",
+    "patient_id": "PAT0502",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3916.86,
+    "claim_date": "2026-08-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01143",
+    "provider_id": "P029",
+    "patient_id": "PAT0637",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2928.75,
+    "claim_date": "2026-07-03",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01144",
+    "provider_id": "P029",
+    "patient_id": "PAT0406",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3297.53,
+    "claim_date": "2026-07-05",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01145",
+    "provider_id": "P029",
+    "patient_id": "PAT0591",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2979.77,
+    "claim_date": "2026-08-19",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01146",
+    "provider_id": "P029",
+    "patient_id": "PAT0084",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2910.93,
+    "claim_date": "2026-07-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01147",
+    "provider_id": "P029",
+    "patient_id": "PAT0174",
+    "procedure_code": "PROC-005",
+    "claim_amount": 4073.88,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01148",
+    "provider_id": "P029",
+    "patient_id": "PAT0679",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3697.58,
+    "claim_date": "2026-08-25",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01149",
+    "provider_id": "P029",
+    "patient_id": "PAT0330",
+    "procedure_code": "PROC-001",
+    "claim_amount": 4060.07,
+    "claim_date": "2026-07-08",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01150",
+    "provider_id": "P029",
+    "patient_id": "PAT0279",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2525.04,
+    "claim_date": "2026-07-31",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01151",
+    "provider_id": "P029",
+    "patient_id": "PAT0553",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2688.86,
+    "claim_date": "2026-07-11",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01152",
+    "provider_id": "P029",
+    "patient_id": "PAT0788",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2625.09,
+    "claim_date": "2026-07-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01153",
+    "provider_id": "P029",
+    "patient_id": "PAT0497",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2797.35,
+    "claim_date": "2026-08-18",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01154",
+    "provider_id": "P029",
+    "patient_id": "PAT0070",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2809.12,
+    "claim_date": "2026-08-14",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01155",
+    "provider_id": "P029",
+    "patient_id": "PAT0352",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2908.2,
+    "claim_date": "2026-07-23",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01156",
+    "provider_id": "P029",
+    "patient_id": "PAT0426",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2538.01,
+    "claim_date": "2026-07-30",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01157",
+    "provider_id": "P029",
+    "patient_id": "PAT0711",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3682.2,
+    "claim_date": "2026-08-12",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01158",
+    "provider_id": "P029",
+    "patient_id": "PAT0236",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3451.19,
+    "claim_date": "2026-07-21",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01159",
+    "provider_id": "P029",
+    "patient_id": "PAT0696",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2757.17,
+    "claim_date": "2026-07-09",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01160",
+    "provider_id": "P029",
+    "patient_id": "PAT0207",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2375.9,
+    "claim_date": "2026-07-13",
+    "specialty": "Cardiology",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01161",
+    "provider_id": "P030",
+    "patient_id": "PAT0668",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2918.1,
+    "claim_date": "2026-08-05",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01162",
+    "provider_id": "P030",
+    "patient_id": "PAT0398",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3615.36,
+    "claim_date": "2026-08-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01163",
+    "provider_id": "P030",
+    "patient_id": "PAT0114",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3855.29,
+    "claim_date": "2026-07-14",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01164",
+    "provider_id": "P030",
+    "patient_id": "PAT0430",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2984.39,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01165",
+    "provider_id": "P030",
+    "patient_id": "PAT0792",
+    "procedure_code": "PROC-003",
+    "claim_amount": 4117.39,
+    "claim_date": "2026-08-19",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01166",
+    "provider_id": "P030",
+    "patient_id": "PAT0017",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2953.27,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01167",
+    "provider_id": "P030",
+    "patient_id": "PAT0497",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2835.43,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01168",
+    "provider_id": "P030",
+    "patient_id": "PAT0659",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3642.87,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01169",
+    "provider_id": "P030",
+    "patient_id": "PAT0038",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3638.11,
+    "claim_date": "2026-07-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01170",
+    "provider_id": "P030",
+    "patient_id": "PAT0731",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3520.79,
+    "claim_date": "2026-07-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01171",
+    "provider_id": "P030",
+    "patient_id": "PAT0766",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3402.11,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01172",
+    "provider_id": "P030",
+    "patient_id": "PAT0125",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3572.5,
+    "claim_date": "2026-08-17",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01173",
+    "provider_id": "P030",
+    "patient_id": "PAT0364",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2867.6,
+    "claim_date": "2026-07-11",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01174",
+    "provider_id": "P030",
+    "patient_id": "PAT0749",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3798.1,
+    "claim_date": "2026-08-08",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01175",
+    "provider_id": "P030",
+    "patient_id": "PAT0086",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2621.39,
+    "claim_date": "2026-07-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01176",
+    "provider_id": "P030",
+    "patient_id": "PAT0716",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2769.27,
+    "claim_date": "2026-08-20",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01177",
+    "provider_id": "P030",
+    "patient_id": "PAT0385",
+    "procedure_code": "PROC-003",
+    "claim_amount": 3758.22,
+    "claim_date": "2026-08-01",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01178",
+    "provider_id": "P030",
+    "patient_id": "PAT0368",
+    "procedure_code": "PROC-002",
+    "claim_amount": 4077.93,
+    "claim_date": "2026-07-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01179",
+    "provider_id": "P030",
+    "patient_id": "PAT0345",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2886.63,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01180",
+    "provider_id": "P030",
+    "patient_id": "PAT0277",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2969.18,
+    "claim_date": "2026-08-18",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01181",
+    "provider_id": "P030",
+    "patient_id": "PAT0335",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2378.08,
+    "claim_date": "2026-07-29",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01182",
+    "provider_id": "P030",
+    "patient_id": "PAT0752",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2678.83,
+    "claim_date": "2026-08-21",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01183",
+    "provider_id": "P030",
+    "patient_id": "PAT0459",
+    "procedure_code": "PROC-001",
+    "claim_amount": 2908.4,
+    "claim_date": "2026-07-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01184",
+    "provider_id": "P030",
+    "patient_id": "PAT0278",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3888.64,
+    "claim_date": "2026-07-31",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01185",
+    "provider_id": "P030",
+    "patient_id": "PAT0327",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2696.74,
+    "claim_date": "2026-07-23",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01186",
+    "provider_id": "P030",
+    "patient_id": "PAT0104",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2892.56,
+    "claim_date": "2026-08-28",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01187",
+    "provider_id": "P030",
+    "patient_id": "PAT0291",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3205.12,
+    "claim_date": "2026-07-31",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01188",
+    "provider_id": "P030",
+    "patient_id": "PAT0042",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2808.16,
+    "claim_date": "2026-08-12",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01189",
+    "provider_id": "P030",
+    "patient_id": "PAT0309",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2553.5,
+    "claim_date": "2026-08-06",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01190",
+    "provider_id": "P030",
+    "patient_id": "PAT0302",
+    "procedure_code": "PROC-005",
+    "claim_amount": 3241.72,
+    "claim_date": "2026-07-07",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01191",
+    "provider_id": "P030",
+    "patient_id": "PAT0311",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2698.67,
+    "claim_date": "2026-08-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01192",
+    "provider_id": "P030",
+    "patient_id": "PAT0295",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3090.73,
+    "claim_date": "2026-07-16",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01193",
+    "provider_id": "P030",
+    "patient_id": "PAT0506",
+    "procedure_code": "PROC-001",
+    "claim_amount": 3153.7,
+    "claim_date": "2026-07-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01194",
+    "provider_id": "P030",
+    "patient_id": "PAT0643",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2334.41,
+    "claim_date": "2026-07-30",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01195",
+    "provider_id": "P030",
+    "patient_id": "PAT0423",
+    "procedure_code": "PROC-003",
+    "claim_amount": 2854.6,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01196",
+    "provider_id": "P030",
+    "patient_id": "PAT0768",
+    "procedure_code": "PROC-004",
+    "claim_amount": 2507.36,
+    "claim_date": "2026-08-22",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01197",
+    "provider_id": "P030",
+    "patient_id": "PAT0469",
+    "procedure_code": "PROC-002",
+    "claim_amount": 3215.55,
+    "claim_date": "2026-07-13",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01198",
+    "provider_id": "P030",
+    "patient_id": "PAT0009",
+    "procedure_code": "PROC-004",
+    "claim_amount": 3398.5,
+    "claim_date": "2026-08-04",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01199",
+    "provider_id": "P030",
+    "patient_id": "PAT0427",
+    "procedure_code": "PROC-002",
+    "claim_amount": 2725.39,
+    "claim_date": "2026-07-09",
+    "specialty": "General Medicine",
+    "referred_to": null
+  },
+  {
+    "claim_id": "C01200",
+    "provider_id": "P030",
+    "patient_id": "PAT0736",
+    "procedure_code": "PROC-005",
+    "claim_amount": 2885.42,
+    "claim_date": "2026-08-25",
+    "specialty": "General Medicine",
+    "referred_to": null
+  }
+];
+var rawProviders = [
+  {
+    "provider_id": "P001",
+    "provider_name": "Provider 001",
+    "specialty": "Cardiology",
+    "city": "Mumbai"
+  },
+  {
+    "provider_id": "P002",
+    "provider_name": "Provider 002",
+    "specialty": "General Medicine",
+    "city": "Pune"
+  },
+  {
+    "provider_id": "P003",
+    "provider_name": "Provider 003",
+    "specialty": "Orthopedics",
+    "city": "Pune"
+  },
+  {
+    "provider_id": "P004",
+    "provider_name": "Provider 004",
+    "specialty": "Cardiology",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P005",
+    "provider_name": "Provider 005",
+    "specialty": "Cardiology",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P006",
+    "provider_name": "Provider 006",
+    "specialty": "Dermatology",
+    "city": "Mumbai"
+  },
+  {
+    "provider_id": "P007",
+    "provider_name": "Provider 007",
+    "specialty": "Cardiology",
+    "city": "Mumbai"
+  },
+  {
+    "provider_id": "P008",
+    "provider_name": "Provider 008",
+    "specialty": "Orthopedics",
+    "city": "Pune"
+  },
+  {
+    "provider_id": "P009",
+    "provider_name": "Provider 009",
+    "specialty": "Neurology",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P010",
+    "provider_name": "Provider 010",
+    "specialty": "Cardiology",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P011",
+    "provider_name": "Provider 011",
+    "specialty": "Orthopedics",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P012",
+    "provider_name": "Provider 012",
+    "specialty": "Dermatology",
+    "city": "Pune"
+  },
+  {
+    "provider_id": "P013",
+    "provider_name": "Provider 013",
+    "specialty": "Dermatology",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P014",
+    "provider_name": "Provider 014",
+    "specialty": "General Medicine",
+    "city": "Mumbai"
+  },
+  {
+    "provider_id": "P015",
+    "provider_name": "Provider 015",
+    "specialty": "Orthopedics",
+    "city": "Nagpur"
+  },
+  {
+    "provider_id": "P016",
+    "provider_name": "Provider 016",
+    "specialty": "General Medicine",
+    "city": "Nashik"
+  },
+  {
+    "provider_id": "P017",
+    "provider_name": "Provider 017",
+    "specialty": "Orthopedics",
+    "city": "Pune"
+  },
+  {
+    "provider_id": "P018",
+    "provider_name": "Provider 018",
+    "specialty": "General Medicine",
+    "city": "Mumbai"
+  },
+  {
+    "provider_id": "P019",
+    "provider_name": "Provider 019",
+    "specialty": "Cardiology",
+    "city": "Nagpur"
+  },
+  {
+    "provider_id": "P020",
+    "provider_name": "Provider 020",
+    "specialty": "Cardiology",
+    "city": "Nashik"
+  },
+  {
+    "provider_id": "P021",
+    "provider_name": "Provider 021",
+    "specialty": "General Medicine",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P022",
+    "provider_name": "Provider 022",
+    "specialty": "General Medicine",
+    "city": "Mumbai"
+  },
+  {
+    "provider_id": "P023",
+    "provider_name": "Provider 023",
+    "specialty": "Dermatology",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P024",
+    "provider_name": "Provider 024",
+    "specialty": "Cardiology",
+    "city": "Nagpur"
+  },
+  {
+    "provider_id": "P025",
+    "provider_name": "Provider 025",
+    "specialty": "Cardiology",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P026",
+    "provider_name": "Provider 026",
+    "specialty": "General Medicine",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P027",
+    "provider_name": "Provider 027",
+    "specialty": "General Medicine",
+    "city": "Aurangabad"
+  },
+  {
+    "provider_id": "P028",
+    "provider_name": "Provider 028",
+    "specialty": "Orthopedics",
+    "city": "Mumbai"
+  },
+  {
+    "provider_id": "P029",
+    "provider_name": "Provider 029",
+    "specialty": "Cardiology",
+    "city": "Pune"
+  },
+  {
+    "provider_id": "P030",
+    "provider_name": "Provider 030",
+    "specialty": "General Medicine",
+    "city": "Mumbai"
+  }
+];
+var rawReferrals = [
+  {
+    "referral_id": "R0001",
+    "from_provider": "P001",
+    "to_provider": "P002",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0002",
+    "from_provider": "P002",
+    "to_provider": "P003",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0003",
+    "from_provider": "P003",
+    "to_provider": "P001",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0004",
+    "from_provider": "P001",
+    "to_provider": "P002",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0005",
+    "from_provider": "P002",
+    "to_provider": "P003",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0006",
+    "from_provider": "P003",
+    "to_provider": "P001",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0007",
+    "from_provider": "P001",
+    "to_provider": "P002",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0008",
+    "from_provider": "P002",
+    "to_provider": "P003",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0009",
+    "from_provider": "P003",
+    "to_provider": "P001",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0010",
+    "from_provider": "P007",
+    "to_provider": "P008",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0011",
+    "from_provider": "P008",
+    "to_provider": "P009",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0012",
+    "from_provider": "P009",
+    "to_provider": "P010",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0013",
+    "from_provider": "P010",
+    "to_provider": "P007",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0014",
+    "from_provider": "P007",
+    "to_provider": "P008",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0015",
+    "from_provider": "P008",
+    "to_provider": "P009",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0016",
+    "from_provider": "P009",
+    "to_provider": "P010",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0017",
+    "from_provider": "P010",
+    "to_provider": "P007",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0018",
+    "from_provider": "P007",
+    "to_provider": "P008",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0019",
+    "from_provider": "P008",
+    "to_provider": "P009",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0020",
+    "from_provider": "P009",
+    "to_provider": "P010",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0021",
+    "from_provider": "P010",
+    "to_provider": "P007",
+    "reason": "specialist_referral"
+  },
+  {
+    "referral_id": "R0022",
+    "from_provider": "P014",
+    "to_provider": "P001",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0023",
+    "from_provider": "P016",
+    "to_provider": "P002",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0024",
+    "from_provider": "P022",
+    "to_provider": "P003",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0025",
+    "from_provider": "P026",
+    "to_provider": "P001",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0026",
+    "from_provider": "P018",
+    "to_provider": "P007",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0027",
+    "from_provider": "P021",
+    "to_provider": "P008",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0028",
+    "from_provider": "P027",
+    "to_provider": "P009",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0029",
+    "from_provider": "P030",
+    "to_provider": "P010",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0030",
+    "from_provider": "P004",
+    "to_provider": "P005",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0031",
+    "from_provider": "P004",
+    "to_provider": "P006",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0032",
+    "from_provider": "P004",
+    "to_provider": "P011",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0033",
+    "from_provider": "P004",
+    "to_provider": "P012",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0034",
+    "from_provider": "P005",
+    "to_provider": "P006",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0035",
+    "from_provider": "P005",
+    "to_provider": "P011",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0036",
+    "from_provider": "P005",
+    "to_provider": "P013",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0037",
+    "from_provider": "P005",
+    "to_provider": "P015",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0038",
+    "from_provider": "P006",
+    "to_provider": "P011",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0039",
+    "from_provider": "P006",
+    "to_provider": "P012",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0040",
+    "from_provider": "P006",
+    "to_provider": "P013",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0041",
+    "from_provider": "P006",
+    "to_provider": "P017",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0042",
+    "from_provider": "P011",
+    "to_provider": "P012",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0043",
+    "from_provider": "P011",
+    "to_provider": "P013",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0044",
+    "from_provider": "P011",
+    "to_provider": "P015",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0045",
+    "from_provider": "P011",
+    "to_provider": "P017",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0046",
+    "from_provider": "P012",
+    "to_provider": "P013",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0047",
+    "from_provider": "P012",
+    "to_provider": "P015",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0048",
+    "from_provider": "P012",
+    "to_provider": "P019",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0049",
+    "from_provider": "P012",
+    "to_provider": "P020",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0050",
+    "from_provider": "P013",
+    "to_provider": "P015",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0051",
+    "from_provider": "P013",
+    "to_provider": "P017",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0052",
+    "from_provider": "P013",
+    "to_provider": "P019",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0053",
+    "from_provider": "P013",
+    "to_provider": "P023",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0054",
+    "from_provider": "P014",
+    "to_provider": "P015",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0055",
+    "from_provider": "P014",
+    "to_provider": "P017",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0056",
+    "from_provider": "P014",
+    "to_provider": "P019",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0057",
+    "from_provider": "P014",
+    "to_provider": "P020",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0058",
+    "from_provider": "P015",
+    "to_provider": "P017",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0059",
+    "from_provider": "P015",
+    "to_provider": "P019",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0060",
+    "from_provider": "P015",
+    "to_provider": "P020",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0061",
+    "from_provider": "P015",
+    "to_provider": "P024",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0062",
+    "from_provider": "P016",
+    "to_provider": "P017",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0063",
+    "from_provider": "P016",
+    "to_provider": "P019",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0064",
+    "from_provider": "P016",
+    "to_provider": "P023",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0065",
+    "from_provider": "P016",
+    "to_provider": "P025",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0066",
+    "from_provider": "P017",
+    "to_provider": "P019",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0067",
+    "from_provider": "P017",
+    "to_provider": "P020",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0068",
+    "from_provider": "P017",
+    "to_provider": "P024",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0069",
+    "from_provider": "P017",
+    "to_provider": "P025",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0070",
+    "from_provider": "P018",
+    "to_provider": "P019",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0071",
+    "from_provider": "P018",
+    "to_provider": "P020",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0072",
+    "from_provider": "P018",
+    "to_provider": "P024",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0073",
+    "from_provider": "P019",
+    "to_provider": "P020",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0074",
+    "from_provider": "P019",
+    "to_provider": "P024",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0075",
+    "from_provider": "P019",
+    "to_provider": "P025",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0076",
+    "from_provider": "P020",
+    "to_provider": "P024",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0077",
+    "from_provider": "P020",
+    "to_provider": "P025",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0078",
+    "from_provider": "P020",
+    "to_provider": "P028",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0079",
+    "from_provider": "P021",
+    "to_provider": "P023",
+    "reason": "normal_referral"
+  },
+  {
+    "referral_id": "R0080",
+    "from_provider": "P021",
+    "to_provider": "P025",
+    "reason": "normal_referral"
+  }
+];
+var demoResults = {
+  "summary": {
+    "claims_processed": 1200,
+    "providers_analyzed": 30,
+    "referral_edges": 80,
+    "rings_detected": 2,
+    "critical_providers": 2,
+    "high_risk_providers": 3
+  },
+  "providers": [
+    {
+      "provider_id": "P002",
+      "provider_name": "Provider 002",
+      "specialty": "General Medicine",
+      "city": "Pune",
+      "claim_count": 40,
+      "total_billing": 246005927e-2,
+      "average_claim": 61501.48,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": 2.7725,
+      "billing_velocity": 1.2903,
+      "statistical_risk": 86.58,
+      "referral_ring_risk": 95,
+      "network_risk": 48.03,
+      "behaviour_risk": 100,
+      "risk_score": 82.74,
+      "risk_level": "CRITICAL",
+      "scc_id": 1,
+      "scc_size": 3,
+      "ring_detected": true,
+      "pagerank": 0.091005,
+      "in_degree": 2,
+      "out_degree": 3,
+      "explanation": [
+        "Claim amount is a statistical outlier for the specialty.",
+        "Provider belongs to a closed referral cycle detected by SCC analysis.",
+        "Provider has elevated network centrality (PageRank)."
+      ]
+    },
+    {
+      "provider_id": "P001",
+      "provider_name": "Provider 001",
+      "specialty": "Cardiology",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 252283235e-2,
+      "average_claim": 63070.81,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": 2.4696,
+      "billing_velocity": 1.4815,
+      "statistical_risk": 81.49,
+      "referral_ring_risk": 95,
+      "network_risk": 53.15,
+      "behaviour_risk": 100,
+      "risk_score": 81.73,
+      "risk_level": "CRITICAL",
+      "scc_id": 1,
+      "scc_size": 3,
+      "ring_detected": true,
+      "pagerank": 0.095619,
+      "in_degree": 3,
+      "out_degree": 3,
+      "explanation": [
+        "Claim amount is a statistical outlier for the specialty.",
+        "Provider belongs to a closed referral cycle detected by SCC analysis.",
+        "Provider has elevated network centrality (PageRank)."
+      ]
+    },
+    {
+      "provider_id": "P003",
+      "provider_name": "Provider 003",
+      "specialty": "Orthopedics",
+      "city": "Pune",
+      "claim_count": 40,
+      "total_billing": 371498755e-2,
+      "average_claim": 92874.69,
+      "specialty_average_claim": 31646.82,
+      "specialty_z_score": 1.8616,
+      "billing_velocity": 1.1429,
+      "statistical_risk": 71.27,
+      "referral_ring_risk": 95,
+      "network_risk": 48.6,
+      "behaviour_risk": 100,
+      "risk_score": 76.73,
+      "risk_level": "HIGH",
+      "scc_id": 1,
+      "scc_size": 3,
+      "ring_detected": true,
+      "pagerank": 0.092728,
+      "in_degree": 2,
+      "out_degree": 3,
+      "explanation": [
+        "Provider belongs to a closed referral cycle detected by SCC analysis.",
+        "Provider has elevated network centrality (PageRank)."
+      ]
+    },
+    {
+      "provider_id": "P010",
+      "provider_name": "Provider 010",
+      "specialty": "Cardiology",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 124721155e-2,
+      "average_claim": 31180.29,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": 0.7222,
+      "billing_velocity": 1.3333,
+      "statistical_risk": 35.57,
+      "referral_ring_risk": 97,
+      "network_risk": 47.24,
+      "behaviour_risk": 100,
+      "risk_score": 62.78,
+      "risk_level": "HIGH",
+      "scc_id": 2,
+      "scc_size": 4,
+      "ring_detected": true,
+      "pagerank": 0.088612,
+      "in_degree": 2,
+      "out_degree": 3,
+      "explanation": [
+        "Provider belongs to a closed referral cycle detected by SCC analysis.",
+        "Provider has elevated network centrality (PageRank)."
+      ]
+    },
+    {
+      "provider_id": "P007",
+      "provider_name": "Provider 007",
+      "specialty": "Cardiology",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 125044764e-2,
+      "average_claim": 31261.19,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": 0.7267,
+      "billing_velocity": 1.4286,
+      "statistical_risk": 35.79,
+      "referral_ring_risk": 97,
+      "network_risk": 46.18,
+      "behaviour_risk": 100,
+      "risk_score": 62.65,
+      "risk_level": "HIGH",
+      "scc_id": 2,
+      "scc_size": 4,
+      "ring_detected": true,
+      "pagerank": 0.085401,
+      "in_degree": 2,
+      "out_degree": 3,
+      "explanation": [
+        "Provider belongs to a closed referral cycle detected by SCC analysis.",
+        "Provider has elevated network centrality (PageRank)."
+      ]
+    },
+    {
+      "provider_id": "P008",
+      "provider_name": "Provider 008",
+      "specialty": "Orthopedics",
+      "city": "Pune",
+      "claim_count": 40,
+      "total_billing": 165272674e-2,
+      "average_claim": 41318.17,
+      "specialty_average_claim": 31646.82,
+      "specialty_z_score": 0.294,
+      "billing_velocity": 1.2903,
+      "statistical_risk": 14.72,
+      "referral_ring_risk": 97,
+      "network_risk": 45.47,
+      "behaviour_risk": 100,
+      "risk_score": 54.08,
+      "risk_level": "MEDIUM",
+      "scc_id": 2,
+      "scc_size": 4,
+      "ring_detected": true,
+      "pagerank": 0.083255,
+      "in_degree": 2,
+      "out_degree": 3,
+      "explanation": [
+        "Provider belongs to a closed referral cycle detected by SCC analysis.",
+        "Provider has elevated network centrality (PageRank)."
+      ]
+    },
+    {
+      "provider_id": "P009",
+      "provider_name": "Provider 009",
+      "specialty": "Neurology",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 122468644e-2,
+      "average_claim": 30617.16,
+      "specialty_average_claim": 30617.16,
+      "specialty_z_score": 0,
+      "billing_velocity": 1.2903,
+      "statistical_risk": 0,
+      "referral_ring_risk": 97,
+      "network_risk": 46.43,
+      "behaviour_risk": 100,
+      "risk_score": 48.39,
+      "risk_level": "MEDIUM",
+      "scc_id": 2,
+      "scc_size": 4,
+      "ring_detected": true,
+      "pagerank": 0.086148,
+      "in_degree": 2,
+      "out_degree": 3,
+      "explanation": [
+        "Provider belongs to a closed referral cycle detected by SCC analysis.",
+        "Provider has elevated network centrality (PageRank)."
+      ]
+    },
+    {
+      "provider_id": "P006",
+      "provider_name": "Provider 006",
+      "specialty": "Dermatology",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 12370937e-1,
+      "average_claim": 30927.34,
+      "specialty_average_claim": 10092.86,
+      "specialty_z_score": 1.7272,
+      "billing_velocity": 1.3333,
+      "statistical_risk": 69.02,
+      "referral_ring_risk": 0,
+      "network_risk": 25.63,
+      "behaviour_risk": 100,
+      "risk_score": 42.73,
+      "risk_level": "MEDIUM",
+      "scc_id": 5,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.012223,
+      "in_degree": 2,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P015",
+      "provider_name": "Provider 015",
+      "specialty": "Orthopedics",
+      "city": "Nagpur",
+      "claim_count": 40,
+      "total_billing": 183979006e-2,
+      "average_claim": 45994.75,
+      "specialty_average_claim": 31646.82,
+      "specialty_z_score": 0.4362,
+      "billing_velocity": 1.3793,
+      "statistical_risk": 21.84,
+      "referral_ring_risk": 0,
+      "network_risk": 39.84,
+      "behaviour_risk": 100,
+      "risk_score": 26.7,
+      "risk_level": "LOW",
+      "scc_id": 10,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.02254,
+      "in_degree": 5,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P017",
+      "provider_name": "Provider 017",
+      "specialty": "Orthopedics",
+      "city": "Pune",
+      "claim_count": 40,
+      "total_billing": 129906,
+      "average_claim": 3247.65,
+      "specialty_average_claim": 31646.82,
+      "specialty_z_score": -0.8634,
+      "billing_velocity": 1.2903,
+      "statistical_risk": 14.51,
+      "referral_ring_risk": 0,
+      "network_risk": 44.53,
+      "behaviour_risk": 78.38,
+      "risk_score": 22.55,
+      "risk_level": "LOW",
+      "scc_id": 12,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.025835,
+      "in_degree": 6,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P019",
+      "provider_name": "Provider 019",
+      "specialty": "Cardiology",
+      "city": "Nagpur",
+      "claim_count": 40,
+      "total_billing": 121775.72,
+      "average_claim": 3044.39,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": -0.8194,
+      "billing_velocity": 1.25,
+      "statistical_risk": 13.77,
+      "referral_ring_risk": 0,
+      "network_risk": 46.13,
+      "behaviour_risk": 76.92,
+      "risk_score": 22.43,
+      "risk_level": "LOW",
+      "scc_id": 14,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.030708,
+      "in_degree": 7,
+      "out_degree": 3,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P020",
+      "provider_name": "Provider 020",
+      "specialty": "Cardiology",
+      "city": "Nashik",
+      "claim_count": 40,
+      "total_billing": 554890.49,
+      "average_claim": 13872.26,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": -0.2261,
+      "billing_velocity": 1.3333,
+      "statistical_risk": 3.8,
+      "referral_ring_risk": 0,
+      "network_risk": 43.57,
+      "behaviour_risk": 100,
+      "risk_score": 20.23,
+      "risk_level": "LOW",
+      "scc_id": 15,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.033838,
+      "in_degree": 6,
+      "out_degree": 3,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P011",
+      "provider_name": "Provider 011",
+      "specialty": "Orthopedics",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 129460.23,
+      "average_claim": 3236.51,
+      "specialty_average_claim": 31646.82,
+      "specialty_z_score": -0.8638,
+      "billing_velocity": 1.2903,
+      "statistical_risk": 14.51,
+      "referral_ring_risk": 0,
+      "network_risk": 30.09,
+      "behaviour_risk": 78.3,
+      "risk_score": 19.65,
+      "risk_level": "LOW",
+      "scc_id": 6,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.01482,
+      "in_degree": 3,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P025",
+      "provider_name": "Provider 025",
+      "specialty": "Cardiology",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 128625.44,
+      "average_claim": 3215.64,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": -0.8101,
+      "billing_velocity": 1.3793,
+      "statistical_risk": 13.61,
+      "referral_ring_risk": 0,
+      "network_risk": 29.83,
+      "behaviour_risk": 78.15,
+      "risk_score": 19.23,
+      "risk_level": "LOW",
+      "scc_id": 20,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.035861,
+      "in_degree": 5,
+      "out_degree": 0,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P013",
+      "provider_name": "Provider 013",
+      "specialty": "Dermatology",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 123073.48,
+      "average_claim": 3076.84,
+      "specialty_average_claim": 10092.86,
+      "specialty_z_score": -0.5816,
+      "billing_velocity": 1.3333,
+      "statistical_risk": 9.77,
+      "referral_ring_risk": 0,
+      "network_risk": 35.26,
+      "behaviour_risk": 77.15,
+      "risk_score": 18.68,
+      "risk_level": "LOW",
+      "scc_id": 8,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.019566,
+      "in_degree": 4,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P018",
+      "provider_name": "Provider 018",
+      "specialty": "General Medicine",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 565959.61,
+      "average_claim": 14148.99,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": 0.1795,
+      "billing_velocity": 1.4815,
+      "statistical_risk": 12.66,
+      "referral_ring_risk": 0,
+      "network_risk": 17.14,
+      "behaviour_risk": 100,
+      "risk_score": 18.49,
+      "risk_level": "LOW",
+      "scc_id": 13,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P012",
+      "provider_name": "Provider 012",
+      "specialty": "Dermatology",
+      "city": "Pune",
+      "claim_count": 40,
+      "total_billing": 124359.03,
+      "average_claim": 3108.98,
+      "specialty_average_claim": 10092.86,
+      "specialty_z_score": -0.579,
+      "billing_velocity": 1.2903,
+      "statistical_risk": 9.73,
+      "referral_ring_risk": 0,
+      "network_risk": 30.42,
+      "behaviour_risk": 77.38,
+      "risk_score": 17.71,
+      "risk_level": "LOW",
+      "scc_id": 7,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.015827,
+      "in_degree": 3,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P024",
+      "provider_name": "Provider 024",
+      "specialty": "Cardiology",
+      "city": "Nagpur",
+      "claim_count": 40,
+      "total_billing": 550769.15,
+      "average_claim": 13769.23,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": -0.2318,
+      "billing_velocity": 1.4286,
+      "statistical_risk": 3.89,
+      "referral_ring_risk": 0,
+      "network_risk": 30.75,
+      "behaviour_risk": 100,
+      "risk_score": 17.71,
+      "risk_level": "LOW",
+      "scc_id": 19,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.038649,
+      "in_degree": 5,
+      "out_degree": 0,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P005",
+      "provider_name": "Provider 005",
+      "specialty": "Cardiology",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 131147.64,
+      "average_claim": 3278.69,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": -0.8066,
+      "billing_velocity": 1.4286,
+      "statistical_risk": 13.55,
+      "referral_ring_risk": 0,
+      "network_risk": 21.33,
+      "behaviour_risk": 78.61,
+      "risk_score": 17.55,
+      "risk_level": "LOW",
+      "scc_id": 4,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.010081,
+      "in_degree": 1,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P028",
+      "provider_name": "Provider 028",
+      "specialty": "Orthopedics",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 128365.71,
+      "average_claim": 3209.14,
+      "specialty_average_claim": 31646.82,
+      "specialty_z_score": -0.8646,
+      "billing_velocity": 1.4286,
+      "statistical_risk": 14.53,
+      "referral_ring_risk": 0,
+      "network_risk": 9.51,
+      "behaviour_risk": 78.11,
+      "risk_score": 15.53,
+      "risk_level": "LOW",
+      "scc_id": 23,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.017901,
+      "in_degree": 1,
+      "out_degree": 0,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P023",
+      "provider_name": "Provider 023",
+      "specialty": "Dermatology",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 130331.04,
+      "average_claim": 3258.28,
+      "specialty_average_claim": 10092.86,
+      "specialty_z_score": -0.5666,
+      "billing_velocity": 1.4815,
+      "statistical_risk": 9.52,
+      "referral_ring_risk": 0,
+      "network_risk": 16.16,
+      "behaviour_risk": 78.46,
+      "risk_score": 14.89,
+      "risk_level": "LOW",
+      "scc_id": 18,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 0.016241,
+      "in_degree": 3,
+      "out_degree": 0,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P004",
+      "provider_name": "Provider 004",
+      "specialty": "Cardiology",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 564895.96,
+      "average_claim": 14122.4,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": -0.2124,
+      "billing_velocity": 1.3333,
+      "statistical_risk": 3.57,
+      "referral_ring_risk": 0,
+      "network_risk": 17.14,
+      "behaviour_risk": 100,
+      "risk_score": 14.86,
+      "risk_level": "LOW",
+      "scc_id": 3,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 4,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P016",
+      "provider_name": "Provider 016",
+      "specialty": "General Medicine",
+      "city": "Nashik",
+      "claim_count": 40,
+      "total_billing": 127751.69,
+      "average_claim": 3193.79,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": -0.4204,
+      "billing_velocity": 1.4815,
+      "statistical_risk": 7.06,
+      "referral_ring_risk": 0,
+      "network_risk": 20.74,
+      "behaviour_risk": 78,
+      "risk_score": 14.77,
+      "risk_level": "LOW",
+      "scc_id": 11,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 5,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P014",
+      "provider_name": "Provider 014",
+      "specialty": "General Medicine",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 123271.68,
+      "average_claim": 3081.79,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": -0.4266,
+      "billing_velocity": 1.3793,
+      "statistical_risk": 7.17,
+      "referral_ring_risk": 0,
+      "network_risk": 20.74,
+      "behaviour_risk": 77.19,
+      "risk_score": 14.74,
+      "risk_level": "LOW",
+      "scc_id": 9,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 5,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P029",
+      "provider_name": "Provider 029",
+      "specialty": "Cardiology",
+      "city": "Pune",
+      "claim_count": 40,
+      "total_billing": 127170.57,
+      "average_claim": 3179.26,
+      "specialty_average_claim": 17999.42,
+      "specialty_z_score": -0.812,
+      "billing_velocity": 1.4286,
+      "statistical_risk": 13.64,
+      "referral_ring_risk": 0,
+      "network_risk": 2.74,
+      "behaviour_risk": 77.89,
+      "risk_score": 13.79,
+      "risk_level": "LOW",
+      "scc_id": 24,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 0,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P021",
+      "provider_name": "Provider 021",
+      "specialty": "General Medicine",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 128943.64,
+      "average_claim": 3223.59,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": -0.4188,
+      "billing_velocity": 1.25,
+      "statistical_risk": 7.04,
+      "referral_ring_risk": 0,
+      "network_risk": 13.54,
+      "behaviour_risk": 78.21,
+      "risk_score": 13.35,
+      "risk_level": "LOW",
+      "scc_id": 16,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 3,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P027",
+      "provider_name": "Provider 027",
+      "specialty": "General Medicine",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 130356.43,
+      "average_claim": 3258.91,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": -0.4169,
+      "billing_velocity": 1.5385,
+      "statistical_risk": 7,
+      "referral_ring_risk": 0,
+      "network_risk": 6.34,
+      "behaviour_risk": 78.46,
+      "risk_score": 11.91,
+      "risk_level": "LOW",
+      "scc_id": 22,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 1,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P022",
+      "provider_name": "Provider 022",
+      "specialty": "General Medicine",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 126869.07,
+      "average_claim": 3171.73,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": -0.4216,
+      "billing_velocity": 1.25,
+      "statistical_risk": 7.08,
+      "referral_ring_risk": 0,
+      "network_risk": 6.34,
+      "behaviour_risk": 77.84,
+      "risk_score": 11.88,
+      "risk_level": "LOW",
+      "scc_id": 17,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 1,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P026",
+      "provider_name": "Provider 026",
+      "specialty": "General Medicine",
+      "city": "Aurangabad",
+      "claim_count": 40,
+      "total_billing": 125603.41,
+      "average_claim": 3140.09,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": -0.4234,
+      "billing_velocity": 1.4815,
+      "statistical_risk": 7.11,
+      "referral_ring_risk": 0,
+      "network_risk": 6.34,
+      "behaviour_risk": 77.61,
+      "risk_score": 11.87,
+      "risk_level": "LOW",
+      "scc_id": 21,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 1,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    },
+    {
+      "provider_id": "P030",
+      "provider_name": "Provider 030",
+      "specialty": "General Medicine",
+      "city": "Mumbai",
+      "claim_count": 40,
+      "total_billing": 124920.01,
+      "average_claim": 3123,
+      "specialty_average_claim": 10871.49,
+      "specialty_z_score": -0.4243,
+      "billing_velocity": 1.3333,
+      "statistical_risk": 7.13,
+      "referral_ring_risk": 0,
+      "network_risk": 6.34,
+      "behaviour_risk": 77.49,
+      "risk_score": 11.87,
+      "risk_level": "LOW",
+      "scc_id": 25,
+      "scc_size": 1,
+      "ring_detected": false,
+      "pagerank": 8314e-6,
+      "in_degree": 0,
+      "out_degree": 1,
+      "explanation": [
+        "No major fraud indicators detected."
+      ]
+    }
+  ],
+  "rings": [
+    {
+      "scc_id": 1,
+      "providers": [
+        "P001",
+        "P002",
+        "P003"
+      ],
+      "size": 3
+    },
+    {
+      "scc_id": 2,
+      "providers": [
+        "P007",
+        "P008",
+        "P009",
+        "P010"
+      ],
+      "size": 4
+    }
+  ]
+};
+
+// src/statistics.ts
+function mean(values) {
+  return values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+}
+function populationStd(values) {
+  if (!values.length) return 0;
+  const m = mean(values);
+  const variance = values.reduce((acc, x) => acc + (x - m) ** 2, 0) / values.length;
+  return Math.sqrt(variance);
+}
+function zScore(value, values) {
+  const sd = populationStd(values);
+  return sd === 0 ? 0 : (value - mean(values)) / sd;
+}
+function computeProviderStatistics(claims, providers) {
+  const byProvider = /* @__PURE__ */ new Map();
+  const bySpecialty = /* @__PURE__ */ new Map();
+  for (const c of claims) {
+    const pid = c.provider_id;
+    if (!byProvider.has(pid)) byProvider.set(pid, []);
+    byProvider.get(pid).push(c);
+    const spec = c.specialty;
+    if (!bySpecialty.has(spec)) bySpecialty.set(spec, []);
+    bySpecialty.get(spec).push(parseFloat(c.claim_amount));
+  }
+  const out = {};
+  for (const p of providers) {
+    const pid = p.provider_id;
+    const cs = byProvider.get(pid) || [];
+    const amounts = cs.map((c) => parseFloat(c.claim_amount));
+    const dates = new Set(cs.map((c) => c.claim_date));
+    const baseline = bySpecialty.get(p.specialty) || [];
+    const avg = mean(amounts);
+    const specAvg = mean(baseline);
+    const z = zScore(avg, baseline);
+    const total = amounts.reduce((a, b) => a + b, 0);
+    out[pid] = {
+      claim_count: cs.length,
+      total_billing: Math.round(total * 100) / 100,
+      average_claim: Math.round(avg * 100) / 100,
+      specialty_average_claim: Math.round(specAvg * 100) / 100,
+      specialty_z_score: Math.round(z * 1e4) / 1e4,
+      billing_velocity: Math.round(cs.length / Math.max(1, dates.size) * 1e4) / 1e4
+    };
+  }
+  return out;
+}
+function statisticalRisk(s) {
+  const z = Math.abs(parseFloat(s.specialty_z_score || 0));
+  const ratio = s.specialty_average_claim ? s.average_claim / s.specialty_average_claim : 1;
+  const val = 0.6 * Math.min(100, z * 28) + 0.4 * Math.min(100, Math.max(0, (ratio - 1) * 80));
+  return Math.round(Math.min(100, Math.max(0, val)) * 100) / 100;
+}
+
+// src/graph_engine.ts
+function buildGraph(providers, referrals) {
+  const g = {};
+  for (const p of providers) {
+    g[p.provider_id] = [];
+  }
+  for (const r of referrals) {
+    if (g[r.from_provider] && g[r.to_provider]) {
+      g[r.from_provider].push(r.to_provider);
+    }
+  }
+  return g;
+}
+function tarjanScc(graph) {
+  let index = 0;
+  const stack = [];
+  const indices = {};
+  const low = {};
+  const onStack = /* @__PURE__ */ new Set();
+  const comps = [];
+  function visit(v) {
+    indices[v] = low[v] = index;
+    index += 1;
+    stack.push(v);
+    onStack.add(v);
+    for (const w of graph[v] || []) {
+      if (indices[w] === void 0) {
+        visit(w);
+        low[v] = Math.min(low[v], low[w]);
+      } else if (onStack.has(w)) {
+        low[v] = Math.min(low[v], indices[w]);
+      }
+    }
+    if (low[v] === indices[v]) {
+      const comp = [];
+      while (true) {
+        const w = stack.pop();
+        onStack.delete(w);
+        comp.push(w);
+        if (w === v) break;
+      }
+      comp.sort();
+      comps.push(comp);
+    }
+  }
+  for (const v of Object.keys(graph)) {
+    if (indices[v] === void 0) {
+      visit(v);
+    }
+  }
+  return comps.sort((a, b) => {
+    if (b.length !== a.length) return b.length - a.length;
+    return a.join(",").localeCompare(b.join(","));
+  });
+}
+function pagerank(graph, damping = 0.85, iterations = 50) {
+  const nodes = Object.keys(graph);
+  const n = nodes.length;
+  if (!n) return {};
+  let r = {};
+  for (const v of nodes) {
+    r[v] = 1 / n;
+  }
+  const incoming = {};
+  const out = {};
+  for (const v of nodes) {
+    incoming[v] = [];
+    out[v] = (graph[v] || []).length;
+  }
+  for (const [a, targets] of Object.entries(graph)) {
+    for (const b of targets) {
+      if (incoming[b]) {
+        incoming[b].push(a);
+      }
+    }
+  }
+  for (let iter = 0; iter < iterations; iter++) {
+    const dangling = nodes.reduce((sum, v) => out[v] === 0 ? sum + r[v] : sum, 0);
+    const nr = {};
+    for (const v of nodes) {
+      let x = (1 - damping) / n + damping * dangling / n;
+      for (const u of incoming[v] || []) {
+        if (out[u]) {
+          x += damping * r[u] / out[u];
+        }
+      }
+      nr[v] = x;
+    }
+    r = nr;
+  }
+  const total = Object.values(r).reduce((a, b) => a + b, 0) || 1;
+  const result = {};
+  for (const [k, v] of Object.entries(r)) {
+    result[k] = Math.round(v / total * 1e6) / 1e6;
+  }
+  return result;
+}
+function graphSignals(graph) {
+  const allSccs = tarjanScc(graph);
+  const rings = allSccs.filter((c) => c.length >= 3).sort((a, b) => a[0].localeCompare(b[0]));
+  const singles = allSccs.filter((c) => c.length < 3).sort((a, b) => a[0].localeCompare(b[0]));
+  const sccs = [...rings, ...singles];
+  const ranks = pagerank(graph);
+  const membership = {};
+  sccs.forEach((c, i) => {
+    const sccId = i + 1;
+    for (const node of c) {
+      membership[node] = {
+        scc_id: sccId,
+        scc_size: c.length,
+        ring_detected: c.length >= 3
+      };
+    }
+  });
+  const out = {};
+  for (const node of Object.keys(graph)) {
+    const mem = membership[node] || { scc_id: null, scc_size: 1, ring_detected: false };
+    const inDegree = Object.values(graph).reduce((sum, targets) => sum + (targets.includes(node) ? 1 : 0), 0);
+    const outDegree = (graph[node] || []).length;
+    out[node] = {
+      ...mem,
+      pagerank: ranks[node] || 0,
+      in_degree: inDegree,
+      out_degree: outDegree
+    };
+  }
+  return { signals: out, sccs };
+}
+
+// src/scoring.ts
+function ringRisk(g) {
+  if (!g?.ring_detected) return 0;
+  const sccSize = parseInt(g.scc_size ?? 3, 10);
+  const val = 95 + Math.max(0, sccSize - 3) * 2;
+  return Math.round(Math.min(100, val) * 100) / 100;
+}
+function networkRisk(g) {
+  const pr = Math.min(100, parseFloat(g?.pagerank ?? 0) * 550);
+  const deg = Math.min(100, (parseInt(g?.in_degree ?? 0, 10) + parseInt(g?.out_degree ?? 0, 10)) * 9);
+  return Math.round((0.6 * pr + 0.4 * deg) * 100) / 100;
+}
+function behaviorRisk(s) {
+  const claimPart = 0.55 * Math.min(100, (s.claim_count || 0) * 2.5);
+  const billPart = 0.45 * Math.min(100, (s.total_billing || 0) / 25e4 * 100);
+  return Math.round((claimPart + billPart) * 100) / 100;
+}
+function finalScore(stat, ring, net, beh) {
+  const score = 0.4 * stat + 0.3 * ring + 0.2 * net + 0.1 * beh;
+  return Math.round(Math.max(0, Math.min(100, score)) * 100) / 100;
+}
+function level(score) {
+  if (score >= 80) return "CRITICAL";
+  if (score >= 60) return "HIGH";
+  if (score >= 35) return "MEDIUM";
+  return "LOW";
+}
+function reasons(s, g) {
+  const r = [];
+  if (Math.abs(parseFloat(s.specialty_z_score || 0)) >= 2) {
+    r.push("Claim amount is a statistical outlier for the specialty.");
+  }
+  if (g?.ring_detected) {
+    r.push("Provider belongs to a closed referral cycle detected by SCC analysis.");
+  }
+  if (parseFloat(g?.pagerank ?? 0) >= 0.08) {
+    r.push("Provider has elevated network centrality (PageRank).");
+  }
+  if (r.length === 0) {
+    r.push("No major fraud indicators detected.");
+  }
+  return r;
+}
+
+// src/fraud_engine.ts
+function runPipeline() {
+  try {
+    const claims = rawClaims;
+    const providers = rawProviders;
+    const referrals = rawReferrals;
+    const stats = computeProviderStatistics(claims, providers);
+    const graph = buildGraph(providers, referrals);
+    const { signals: gs, sccs } = graphSignals(graph);
+    const rows = [];
+    for (const p of providers) {
+      const pid = p.provider_id;
+      const s = stats[pid] || {};
+      const g = gs[pid] || {};
+      const sr = statisticalRisk(s);
+      const rr = ringRisk(g);
+      const nr = networkRisk(g);
+      const br = behaviorRisk(s);
+      const score = finalScore(sr, rr, nr, br);
+      rows.push({
+        ...p,
+        ...s,
+        statistical_risk: sr,
+        referral_ring_risk: rr,
+        network_risk: nr,
+        behaviour_risk: br,
+        risk_score: score,
+        risk_level: level(score),
+        scc_id: g.scc_id,
+        scc_size: g.scc_size,
+        ring_detected: g.ring_detected,
+        pagerank: g.pagerank,
+        in_degree: g.in_degree,
+        out_degree: g.out_degree,
+        explanation: reasons(s, g)
+      });
+    }
+    rows.sort((a, b) => b.risk_score - a.risk_score);
+    const rings = sccs.filter((c) => c.length >= 3).sort((a, b) => a[0].localeCompare(b[0])).map((c, i) => ({
+      scc_id: i + 1,
+      providers: c,
+      size: c.length
+    }));
+    return {
+      summary: {
+        claims_processed: claims.length,
+        providers_analyzed: providers.length,
+        referral_edges: referrals.length,
+        rings_detected: rings.length,
+        critical_providers: rows.filter((r) => r.risk_level === "CRITICAL").length,
+        high_risk_providers: rows.filter((r) => r.risk_level === "HIGH").length
+      },
+      providers: rows,
+      rings
+    };
+  } catch (err) {
+    console.error("Pipeline calculation error, falling back to demoResults:", err);
+    return demoResults;
+  }
+}
+
+// src/static_bundle.ts
+var embeddedHtml = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Healthcare Fraud Intelligence</title><meta name="description" content="Healthcare fraud detection and referral-ring analytics platform using statistical anomaly detection and graph algorithms."><meta property="og:title" content="Healthcare Fraud Intelligence"><meta property="og:description" content="Healthcare fraud detection and referral-ring analytics platform using statistical anomaly detection and graph algorithms."><link rel="stylesheet" href="style.css"></head><body><header><div><span>FRAUD ANALYTICS</span><h1>Healthcare Fraud Intelligence</h1><p>Statistical anomaly detection + referral-ring analytics</p></div></header><main><section id="metrics" class="metrics"></section><section class="grid"><div class="card wide"><div class="head"><div><h2>Top Risk Providers</h2><p>Weighted statistical and network signals</p></div><select id="filter"><option value="">All</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div><div class="table"><table><thead><tr><th>Provider</th><th>Score</th><th>Risk</th><th>SCC</th><th>PageRank</th><th>Z-Score</th></tr></thead><tbody id="providers"></tbody></table></div></div><div class="card"><h2>Referral Rings</h2><p>Strongly connected components</p><div id="rings"></div></div><div class="card"><h2>Investigation</h2><select id="providerSelect"></select><div id="detail" class="detail"></div></div></section></main><script src="app.js"></script></body></html>';
+var embeddedCss = ":root{--bg:#0b1020;--panel:#121a2d;--line:#263252;--text:#eef3ff;--muted:#94a2c4;--accent:#79a7ff}*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial;background:var(--bg);color:var(--text)}header,main{max-width:1200px;margin:auto;padding:30px 22px}header{display:flex;justify-content:space-between;gap:20px}header span{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:1px}h1{font-size:34px;margin:6px 0}h2{margin:0 0 5px}p{color:var(--muted);margin:0}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.metric,.card{background:var(--panel);border:1px solid var(--line);border-radius:16px}.metric{padding:18px}.metric strong{font-size:28px;display:block;margin-top:6px}.label{color:var(--muted);font-size:11px;text-transform:uppercase}.grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:14px}.wide{grid-row:span 2}.card{padding:18px}.head{display:flex;justify-content:space-between;gap:15px;margin-bottom:15px}select{background:#0e1628;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px}#providerSelect{width:100%;margin-bottom:6px}.table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:11px 7px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}th{color:var(--muted);font-size:10px}.badge{padding:4px 7px;border-radius:999px;font-weight:700;font-size:10px}.CRITICAL{color:#ff9eaa;background:#3a1c26}.HIGH{color:#ffd879;background:#3a3119}.MEDIUM{color:#a9c6ff;background:#182a48}.LOW{color:#7ee5bb;background:#16372d}.ring{margin-top:10px;padding:11px;border:1px solid var(--line);border-radius:10px}#detail,.detail{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.box{padding:10px;border:1px solid var(--line);border-radius:9px}.box small{color:var(--muted);display:block}.reasons{grid-column:1/-1}.reasons li{margin:6px 0;color:#dce5fb}footer{text-align:center;padding:18px;color:var(--muted);border-top:1px solid var(--line)}@media(max-width:850px){.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.wide{grid-row:auto}header{flex-direction:column}}\n";
+var embeddedJs = 'const get = (u) => fetch(u).then((r) => r.json());\n\nasync function init() {\n  const [s, p, r] = await Promise.all([\n    get("/api/summary"),\n    get("/api/providers"),\n    get("/api/fraud/rings"),\n  ]);\n  metrics(s);\n  renderProviders(p);\n  renderRings(r);\n  selectProviders(p);\n  show(p[0]);\n\n  document.querySelector("#filter").onchange = async (e) =>\n    renderProviders(\n      e.target.value\n        ? await get("/api/providers?risk=" + e.target.value)\n        : await get("/api/providers")\n    );\n\n  document.querySelector("#providerSelect").onchange = async (e) =>\n    show(await get("/api/providers/" + e.target.value));\n}\n\nfunction metrics(s) {\n  const x = [\n    ["Claims", s.claims_processed],\n    ["Providers", s.providers_analyzed],\n    ["Edges", s.referral_edges],\n    ["Rings", s.rings_detected],\n    ["Critical", s.critical_providers],\n  ];\n  document.querySelector("#metrics").innerHTML = x\n    .map(\n      (a) =>\n        `<div class="metric"><div class="label">${a[0]}</div><strong>${a[1]}</strong></div>`\n    )\n    .join("");\n}\n\nfunction renderProviders(a) {\n  document.querySelector("#providers").innerHTML = a\n    .slice(0, 15)\n    .map(\n      (p) =>\n        `<tr style="cursor:pointer" onclick="document.querySelector(\'#providerSelect\').value=\'${p.provider_id}\';document.querySelector(\'#providerSelect\').dispatchEvent(new Event(\'change\'))"><td><b>${p.provider_id}</b><br><span>${p.specialty}</span></td><td>${p.risk_score}</td><td><span class="badge ${p.risk_level}">${p.risk_level}</span></td><td>${p.ring_detected ? "YES" : "NO"}</td><td>${Number(p.pagerank).toFixed(4)}</td><td>${Number(p.specialty_z_score).toFixed(2)}</td></tr>`\n    )\n    .join("");\n}\n\nfunction renderRings(r) {\n  document.querySelector("#rings").innerHTML = r\n    .map(\n      (x) =>\n        `<div class="ring"><b>SCC #${x.scc_id} \u2022 ${x.size} providers</b><br>${x.providers.join(" \u2192 ")} \u2192 ${x.providers[0]}</div>`\n    )\n    .join("");\n}\n\nfunction selectProviders(a) {\n  document.querySelector("#providerSelect").innerHTML = a\n    .map((p) => `<option value="${p.provider_id}">${p.provider_id} \u2014 ${p.risk_level}</option>`)\n    .join("");\n}\n\nfunction show(p) {\n  if (!p) return;\n  document.querySelector("#detail").innerHTML = `\n    <div class="box"><small>Risk Score</small><b>${p.risk_score}</b></div>\n    <div class="box"><small>Statistical Risk</small><b>${p.statistical_risk}</b></div>\n    <div class="box"><small>Ring Risk</small><b>${p.referral_ring_risk}</b></div>\n    <div class="box"><small>PageRank</small><b>${p.pagerank}</b></div>\n    <div class="reasons"><b>Why flagged</b><ul>${p.explanation.map((x) => `<li>${x}</li>`).join("")}</ul></div>\n  `;\n}\n\ninit().catch(console.error);\n\n';
+
+// server.ts
+var __filename = fileURLToPath(import.meta.url);
+var __dirname = path.dirname(__filename);
+var app = express();
+var PORT = 3e3;
+app.use(express.json());
+var RESULTS;
+try {
+  RESULTS = runPipeline();
+} catch (e) {
+  console.error("Error running pipeline:", e);
+}
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+app.get("/api/summary", (req, res) => {
+  res.json(RESULTS?.summary ?? {});
+});
+app.get("/api/providers", (req, res) => {
+  const risk = req.query.risk;
+  const providers = RESULTS?.providers ?? [];
+  if (risk) {
+    const filtered = providers.filter(
+      (x) => (x.risk_level || "").toLowerCase() === risk.toLowerCase()
+    );
+    res.json(filtered);
+  } else {
+    res.json(providers);
+  }
+});
+app.get("/api/providers/:pid", (req, res) => {
+  const pid = req.params.pid;
+  const p = (RESULTS?.providers ?? []).find((x) => x.provider_id === pid);
+  if (p) {
+    res.json(p);
+  } else {
+    res.status(404).json({ error: "Provider not found" });
+  }
+});
+app.get("/api/fraud/rings", (req, res) => {
+  res.json(RESULTS?.rings ?? []);
+});
+var candidateDirs = [
+  path.join(process.cwd(), "frontend"),
+  path.join(process.cwd(), "public"),
+  path.join(__dirname, "frontend"),
+  path.join(__dirname, "../frontend"),
+  path.join(__dirname, "public"),
+  path.join(__dirname, "../public")
+];
+var frontendDir = candidateDirs.find((d) => fs.existsSync(d)) || path.join(process.cwd(), "frontend");
+app.use(express.static(frontendDir));
+app.get("/style.css", (req, res) => {
+  const filePath = path.join(frontendDir, "style.css");
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  res.setHeader("Content-Type", "text/css");
+  res.send(embeddedCss);
+});
+app.get("/app.js", (req, res) => {
+  const filePath = path.join(frontendDir, "app.js");
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  res.setHeader("Content-Type", "application/javascript");
+  res.send(embeddedJs);
+});
+app.get("*", (req, res) => {
+  const indexPath = path.join(frontendDir, "index.html");
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(embeddedHtml);
+});
+var isDirectRun = Boolean(
+  process.argv[1] && (process.argv[1].endsWith("server.ts") || process.argv[1].endsWith("server.js"))
+);
+if (isDirectRun && !process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Healthcare Fraud Intelligence server running on http://0.0.0.0:${PORT}`);
+  });
+}
+var server_default = app;
+export {
+  server_default as default
+};
