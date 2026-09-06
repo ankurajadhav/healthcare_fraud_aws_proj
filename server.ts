@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { runPipeline } from "./src/fraud_engine";
+import { embeddedHtml, embeddedCss, embeddedJs } from "./src/static_bundle";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,16 +68,40 @@ const candidateDirs = [
 const frontendDir = candidateDirs.find((d) => fs.existsSync(d)) || path.join(process.cwd(), "frontend");
 app.use(express.static(frontendDir));
 
+// Fallback static assets if running in zero-filesystem serverless environment
+app.get("/style.css", (req, res) => {
+  const filePath = path.join(frontendDir, "style.css");
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  res.setHeader("Content-Type", "text/css");
+  res.send(embeddedCss);
+});
+
+app.get("/app.js", (req, res) => {
+  const filePath = path.join(frontendDir, "app.js");
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  res.setHeader("Content-Type", "application/javascript");
+  res.send(embeddedJs);
+});
+
 app.get("*", (req, res) => {
   const indexPath = path.join(frontendDir, "index.html");
   if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.json({ message: "Healthcare Fraud Intelligence API", status: "ok" });
+    return res.sendFile(indexPath);
   }
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(embeddedHtml);
 });
 
-if (!process.env.VERCEL) {
+const isDirectRun = Boolean(
+  process.argv[1] &&
+    (process.argv[1].endsWith("server.ts") || process.argv[1].endsWith("server.js"))
+);
+
+if (isDirectRun && !process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Healthcare Fraud Intelligence server running on http://0.0.0.0:${PORT}`);
   });
