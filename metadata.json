@@ -1,0 +1,8 @@
+{
+  "name": "Remix health_carefraud_aws",
+  "description": "Imported from GitHub: ankurajadhav/health_carefraud_aws",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
